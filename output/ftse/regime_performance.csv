@@ -1,27 +1,3 @@
 regime,count,pct_of_total,mean,median,std,annualised_return
-downtrend,2122,0.3203986109014042,"Ticker
-^FTSE   -0.0011
-^FTSE   -0.0011
-dtype: float64","Ticker
-^FTSE   -0.001137
-^FTSE   -0.001137
-dtype: float64","Ticker
-^FTSE    0.015806
-^FTSE    0.015806
-dtype: float64","Ticker
-^FTSE   -0.265893
-^FTSE   -0.265893
-dtype: float64"
-uptrend,4501,0.6796013890985958,"Ticker
-^FTSE    0.00098
-^FTSE    0.00098
-dtype: float64","Ticker
-^FTSE    0.001057
-^FTSE    0.001057
-dtype: float64","Ticker
-^FTSE    0.008298
-^FTSE    0.008298
-dtype: float64","Ticker
-^FTSE    0.26903
-^FTSE    0.26903
-dtype: float64"
+downtrend,2122,0.3203986109014042,-0.0011004251867698155,-0.0011369595367950458,0.015806317544296154,-0.2658928040420885
+uptrend,4501,0.6796013890985958,0.0009802997835675327,0.0010566221992924785,0.008298172688063472,0.2690304029583126

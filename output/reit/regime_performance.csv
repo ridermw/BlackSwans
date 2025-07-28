@@ -1,27 +1,3 @@
 regime,count,pct_of_total,mean,median,std,annualised_return
-downtrend,461,0.3347857661583152,"Ticker
-VNQ   -0.001986
-VNQ   -0.002280
-dtype: float64","Ticker
-VNQ   -0.003979
-VNQ   -0.004719
-dtype: float64","Ticker
-VNQ    0.044128
-VNQ    0.044127
-dtype: float64","Ticker
-VNQ   -0.526002
-VNQ   -0.559889
-dtype: float64"
-uptrend,916,0.6652142338416849,"Ticker
-VNQ    0.001815
-VNQ    0.001654
-dtype: float64","Ticker
-VNQ    0.001541
-VNQ    0.001438
-dtype: float64","Ticker
-VNQ    0.015569
-VNQ    0.015672
-dtype: float64","Ticker
-VNQ    0.532183
-VNQ    0.470837
-dtype: float64"
+downtrend,461,0.3347857661583152,-0.0019860383253738827,-0.003978604006931286,0.04412751985295544,-0.526002179830383
+uptrend,916,0.6652142338416849,0.0018152057144231804,0.0015413245594280145,0.015568860306916345,0.5321831990433437

@@ -1,27 +1,3 @@
 regime,count,pct_of_total,mean,median,std,annualised_return
-downtrend,1268,0.2892335766423358,"Ticker
-^AXJO   -0.000949
-^AXJO   -0.000949
-dtype: float64","Ticker
-^AXJO   -0.000978
-^AXJO   -0.000978
-dtype: float64","Ticker
-^AXJO    0.013794
-^AXJO    0.013794
-dtype: float64","Ticker
-^AXJO   -0.231474
-^AXJO   -0.231474
-dtype: float64"
-uptrend,3116,0.7107664233576643,"Ticker
-^AXJO    0.000743
-^AXJO    0.000743
-dtype: float64","Ticker
-^AXJO    0.000799
-^AXJO    0.000799
-dtype: float64","Ticker
-^AXJO    0.007642
-^AXJO    0.007642
-dtype: float64","Ticker
-^AXJO    0.196859
-^AXJO    0.196859
-dtype: float64"
+downtrend,1268,0.2892335766423358,-0.0009487616993479094,-0.0009775779130654083,0.013793627136395275,-0.23147445869502004
+uptrend,3116,0.7107664233576643,0.0007425666031704206,0.000799344706212346,0.007642043207513703,0.19685902900944074

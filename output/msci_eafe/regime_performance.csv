@@ -1,27 +1,3 @@
 regime,count,pct_of_total,mean,median,std,annualised_return
-downtrend,648,0.301255230125523,"Ticker
-EFA   -0.001501
-EFA   -0.001605
-dtype: float64","Ticker
-EFA   -0.001233
-EFA   -0.001358
-dtype: float64","Ticker
-EFA    0.024364
-EFA    0.024377
-dtype: float64","Ticker
-EFA   -0.364338
-EFA   -0.380852
-dtype: float64"
-uptrend,1503,0.698744769874477,"Ticker
-EFA    0.001227
-EFA    0.001137
-dtype: float64","Ticker
-EFA    0.001343
-EFA    0.001280
-dtype: float64","Ticker
-EFA    0.010278
-EFA    0.010319
-dtype: float64","Ticker
-EFA    0.343950
-EFA    0.313941
-dtype: float64"
+downtrend,648,0.301255230125523,-0.0015011699474341367,-0.0012332984393670365,0.024363573333458535,-0.3643377223458004
+uptrend,1503,0.698744769874477,0.0012265627908805182,0.0013432481598443236,0.010277948273179223,0.34395003872379126

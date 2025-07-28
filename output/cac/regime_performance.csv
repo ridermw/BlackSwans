@@ -1,27 +1,3 @@
 regime,count,pct_of_total,mean,median,std,annualised_return
-downtrend,1921,0.37911979475034535,"Ticker
-^FCHI   -0.001175
-^FCHI   -0.001175
-dtype: float64","Ticker
-^FCHI   -0.001264
-^FCHI   -0.001264
-dtype: float64","Ticker
-^FCHI    0.018533
-^FCHI    0.018533
-dtype: float64","Ticker
-^FCHI   -0.287945
-^FCHI   -0.287945
-dtype: float64"
-uptrend,3146,0.6208802052496546,"Ticker
-^FCHI    0.001153
-^FCHI    0.001153
-dtype: float64","Ticker
-^FCHI    0.001063
-^FCHI    0.001063
-dtype: float64","Ticker
-^FCHI    0.010662
-^FCHI    0.010662
-dtype: float64","Ticker
-^FCHI    0.317825
-^FCHI    0.317825
-dtype: float64"
+downtrend,1921,0.37911979475034535,-0.0011753114296546652,-0.0012642225031606058,0.018533341474673413,-0.2879449143640036
+uptrend,3146,0.6208802052496546,0.0011525754436160233,0.001063419001008481,0.01066187908446294,0.3178251574480211
