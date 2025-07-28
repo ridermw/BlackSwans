@@ -1,0 +1,63 @@
+quantile,threshold_low,threshold_high,count_low,count_high,mean_low,mean_high,median_low,median_high,std_low,std_high,min_low,max_high
+0.99,"Ticker
+^GSPC   -0.029348
+^GSPC   -0.029348
+Name: 0.010000000000000009, dtype: float64","Ticker
+^GSPC    0.02889
+^GSPC    0.02889
+Name: 0.99, dtype: float64",8831,8831,"Ticker
+^GSPC   -0.043912
+^GSPC   -0.043912
+dtype: float64","Ticker
+^GSPC    0.041848
+^GSPC    0.041848
+dtype: float64","Ticker
+^GSPC   -0.036245
+^GSPC   -0.036245
+dtype: float64","Ticker
+^GSPC    0.037504
+^GSPC    0.037504
+dtype: float64","Ticker
+^GSPC    0.02265
+^GSPC    0.02265
+dtype: float64","Ticker
+^GSPC    0.015159
+^GSPC    0.015159
+dtype: float64","Ticker
+^GSPC   -0.204669
+^GSPC   -0.204669
+dtype: float64","Ticker
+^GSPC    0.1158
+^GSPC    0.1158
+dtype: float64"
+0.999,"Ticker
+^GSPC   -0.067218
+^GSPC   -0.067218
+Name: 0.0010000000000000009, dtype: float64","Ticker
+^GSPC    0.054711
+^GSPC    0.054711
+Name: 0.999, dtype: float64",8831,8831,"Ticker
+^GSPC   -0.092855
+^GSPC   -0.092855
+dtype: float64","Ticker
+^GSPC    0.078179
+^GSPC    0.078179
+dtype: float64","Ticker
+^GSPC   -0.082789
+^GSPC   -0.082789
+dtype: float64","Ticker
+^GSPC    0.069213
+^GSPC    0.069213
+dtype: float64","Ticker
+^GSPC    0.040497
+^GSPC    0.040497
+dtype: float64","Ticker
+^GSPC    0.020131
+^GSPC    0.020131
+dtype: float64","Ticker
+^GSPC   -0.204669
+^GSPC   -0.204669
+dtype: float64","Ticker
+^GSPC    0.1158
+^GSPC    0.1158
+dtype: float64"
