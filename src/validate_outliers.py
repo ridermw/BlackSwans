@@ -79,7 +79,37 @@ class OutlierStats:
     max_high: float
 
 
-def fetch_price_data(ticker: str, start: str, end: str, csv_path: Optional[str] = None, overwrite: bool = False) -> pd.DataFrame:
+def _load_csv(path: str) -> pd.DataFrame:
+    """Load CSV with robust date parsing.
+
+    If a ``Date`` column is present it is parsed and set as index.
+    Otherwise the existing index is converted to datetime.
+    The DataFrame is then sorted by the datetime index.
+
+    Parameters
+    ----------
+    path : str
+        Path to a CSV file.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame indexed by datetime, sorted ascending.
+    """
+    df = pd.read_csv(path)
+    for col in ("Date", "date", "DATE"):
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col])
+            df = df.set_index(col)
+            break
+    else:
+        df.index = pd.to_datetime(df.index)
+    return df.sort_index()
+
+
+def fetch_price_data(ticker: str, start: str, end: str,
+                     csv_path: Optional[str] = None,
+                     overwrite: bool = False) -> pd.DataFrame:
     """Load historical price data.
 
     If ``csv_path`` is provided and the file exists, it will be
@@ -100,89 +130,52 @@ def fetch_price_data(ticker: str, start: str, end: str, csv_path: Optional[str] 
     csv_path: Optional[str]
         Path to a local CSV file containing historical prices with at
         least a ``Date`` column and a ``Close`` or ``Adj Close`` column.
+    overwrite: bool
+        If True, forces re-download even if a cache exists.
 
     Returns
     -------
     pd.DataFrame
         DataFrame indexed by datetime with a 'Close' column representing
-        daily closing prices.  The index will contain all trading days
+        daily closing prices. The index will contain all trading days
         between start and end inclusive.
     """
-    # Helper function to robustly load CSV with or without Date column
-    def load_csv_with_date_index(path):
-        df = pd.read_csv(path)
-        # Try to find a date column
-        date_col = None
-        for candidate in ["Date", "date", "DATE"]:
-            if candidate in df.columns:
-                date_col = candidate
-                break
-        if date_col is not None:
-            df[date_col] = pd.to_datetime(df[date_col])
-            df = df.set_index(date_col)
-        else:
-            # Assume index is already dates
-            df.index = pd.to_datetime(df.index)
-        df = df.sort_index()
-        return df
+    cache_dir = os.path.join(os.path.dirname(__file__), "..", "data")
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file = f"{ticker.replace('^','_')}_{start}_to_{end}.csv"
+    cache_path = os.path.join(cache_dir, cache_file)
 
-    # Determine the canonical data directory and filename
-    data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
-    os.makedirs(data_dir, exist_ok=True)
-    default_filename = f"{ticker.replace('^','_')}_{start}_to_{end}.csv"
-    default_path = os.path.join(data_dir, default_filename)
-
-    # Overwrite disables all caching
-    if overwrite:
+    def download_and_cache() -> pd.DataFrame:
         if yf is None:
             raise RuntimeError("yfinance not installed and no CSV provided")
         data = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=False)
         if data.empty:
-            raise ValueError(f"No data returned for {ticker} from {start} to {end}")
-        data = data.rename(columns={"Adj Close": "Close"})
-        # Save to canonical data file for future use
-        data_to_save = data.copy()
-        data_to_save.index.name = "Date"
-        data_to_save.to_csv(default_path)
-        return data[["Close"]]
-
-    # Priority: explicit csv_path > default_path > download
-    if csv_path and os.path.exists(csv_path):
-        df = load_csv_with_date_index(csv_path)
-        if "Close" not in df.columns and "Adj Close" in df.columns:
-            df["Close"] = df["Adj Close"]
-        if df.index.min() <= pd.to_datetime(start) and df.index.max() >= pd.to_datetime(end):
-            return df[["Close"]].loc[start:end]
-        # fall through to cached
-
-    if os.path.exists(default_path):
-        df = load_csv_with_date_index(default_path)
-        if "Close" not in df.columns and "Adj Close" in df.columns:
-            df["Close"] = df["Adj Close"]
-        # if cached covers range, return slice
-        if df.index.min() <= pd.to_datetime(start) and df.index.max() >= pd.to_datetime(end):
-            return df[["Close"]].loc[start:end]
-        # else overwrite by full download
-        if yf is None:
-            raise RuntimeError("yfinance not installed and no CSV provided")
-        data = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=False)
-        if data.empty:
-            raise ValueError(f"No data returned for {ticker} from {start} to {end}")
+            raise ValueError(f"No data for {ticker} from {start} to {end}")
         data = data.rename(columns={"Adj Close": "Close"})
         data.index.name = "Date"
-        data.to_csv(default_path)
+        data.to_csv(cache_path)
         return data[["Close"]]
 
-    # If no file exists, download all
-    if yf is None:
-        raise RuntimeError("yfinance not installed and no CSV provided")
-    data = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=False)
-    if data.empty:
-        raise ValueError(f"No data returned for {ticker} from {start} to {end}")
-    data = data.rename(columns={"Adj Close": "Close"})
-    data.index.name = "Date"
-    data.to_csv(default_path)
-    return data[["Close"]]
+    # 1) explicit CSV path
+    if csv_path and os.path.exists(csv_path):
+        df = _load_csv(csv_path)
+        if "Close" not in df.columns and "Adj Close" in df.columns:
+            df["Close"] = df["Adj Close"]
+        if df.index.min() <= pd.to_datetime(start) and df.index.max() >= pd.to_datetime(end):
+            return df[["Close"]].loc[start:end]
+
+    # 2) cached file
+    if os.path.exists(cache_path) and not overwrite:
+        df = _load_csv(cache_path)
+        if "Close" not in df.columns and "Adj Close" in df.columns:
+            df["Close"] = df["Adj Close"]
+        # if covers the range, return it
+        if df.index.min() <= pd.to_datetime(start) and df.index.max() >= pd.to_datetime(end):
+            return df[["Close"]].loc[start:end]
+        # otherwise fall through to full download
+
+    # 3) download fresh
+    return download_and_cache()
 
 
 def compute_daily_returns(prices: pd.Series) -> pd.Series:
@@ -191,12 +184,12 @@ def compute_daily_returns(prices: pd.Series) -> pd.Series:
     Parameters
     ----------
     prices : pd.Series
-        Series of closing prices
+        Series of daily closing prices.
 
     Returns
     -------
     pd.Series
-        Daily returns as percentage change
+        Daily returns as percentage change, named 'Return'.
     """
     returns = prices.pct_change().dropna()
     returns.name = "Return"
@@ -209,14 +202,14 @@ def calculate_outlier_stats(returns: pd.Series, quantile: float) -> OutlierStats
     Parameters
     ----------
     returns : pd.Series
-        Daily return values
+        Daily return series.
     quantile : float
-        Tail quantile threshold (e.g., 0.99 for 1%)
+        Tail quantile (e.g. 0.99 for 1%).
 
     Returns
     -------
     OutlierStats
-        Summary stats for low and high outlier tails
+        Descriptive statistics for low and high outlier tails.
     """
     low = returns.quantile(1 - quantile)
     high = returns.quantile(quantile)
@@ -233,131 +226,119 @@ def calculate_outlier_stats(returns: pd.Series, quantile: float) -> OutlierStats
 
 
 def annualised_return(returns: pd.Series) -> float:
-    """Compute the compound annual growth rate (CAGR) from daily returns.
+    """Compute compound annual growth rate (CAGR) from daily returns.
 
-    Assumes 252 trading days per year.  Handles arbitrary lengths by
-    computing the geometric mean and then annualising.
+    Assumes 252 trading days per year and uses geometric mean.
 
     Parameters
     ----------
     returns : pd.Series
-        Daily return values
+        Series of daily returns.
 
     Returns
     -------
     float
-        Annualised geometric return
+        Annualised geometric return.
     """
     if returns.empty:
-        return float('nan')
+        return float("nan")
     cumulative = (1 + returns).prod()
     years = len(returns) / 252
-    return cumulative ** (1 / years) - 1 if years > 0 else float('nan')
+    return cumulative ** (1 / years) - 1 if years > 0 else float("nan")
 
 
-def scenario_returns(returns: pd.Series, best_n: int, worst_n: int) -> Tuple[pd.Series, ...]:
-    """Simulate the effect of excluding best/worst days on performance.
+def scenario_returns(returns: pd.Series, best_n: int, worst_n: int
+                     ) -> Tuple[pd.Series, pd.Series, pd.Series, pd.Series]:
+    """Simulate missing best/worst return days.
+
+    Returns four series: original, missing best, missing worst, and missing both.
 
     Parameters
     ----------
     returns : pd.Series
-        Original return series
+        Original daily returns.
     best_n : int
-        Number of highest return days to remove
+        Number of top-return days to zero out.
     worst_n : int
-        Number of lowest return days to remove
+        Number of bottom-return days to zero out.
 
     Returns
     -------
-    Tuple[pd.Series, ...]
-        Original, miss_best, miss_worst, and miss_both return series
-    
-    Four scenarios are returned:
-
-    * all_days     – original return series (baseline)
-    * miss_best    – returns with the ``best_n`` highest days set to zero
-    * miss_worst   – returns with the ``worst_n`` lowest days set to zero
-    * miss_both    – returns with both best and worst days set to zero
-
-    Setting returns to zero approximates the investor being out of the
-    market on those days but otherwise invested.  We choose to keep
-    the same number of trading periods so that the annualisation is
-    comparable across scenarios.
+    Tuple[pd.Series, pd.Series, pd.Series, pd.Series]
+        (all_days, miss_best, miss_worst, miss_both)
     """
     # Accept both Series and single-column DataFrame
     if isinstance(returns, pd.DataFrame):
-        # Use 'Return' column if present, else use the first column
+        # Use 'Return' column if present, else first column
         if 'Return' in returns.columns:
             returns = returns['Return']
         else:
             returns = returns.iloc[:, 0]
 
-    # Now returns is a Series
-    sorted_returns = returns.sort_values()
-    worst_idx = sorted_returns.index[:worst_n]
-    best_idx = sorted_returns.index[-best_n:]
+    # Now ensure returns is a Series
+    sorted_r = returns.sort_values()
+    worst_idx = sorted_r.index[:worst_n]
+    best_idx = sorted_r.index[-best_n:]
 
     miss_best = returns.copy()
     miss_best.loc[best_idx] = 0.0
     miss_worst = returns.copy()
     miss_worst.loc[worst_idx] = 0.0
     miss_both = returns.copy()
-    miss_both.loc[best_idx] = 0.0
-    miss_both.loc[worst_idx] = 0.0
+    miss_both.loc[best_idx.union(worst_idx)] = 0.0
 
     return returns, miss_best, miss_worst, miss_both
 
 
 def moving_average_regime(prices: pd.Series, window: int) -> pd.Series:
-    """Compute a simple moving average and classify regimes.
+    """Classify market regime by rolling moving average.
 
-    A regime of 1 indicates the price is above its ``window`` day
-    moving average (uptrend), while 0 indicates a downtrend.  The
-    resulting Series is aligned to the input price index.  Days
-    without a valid moving average (first ``window``–1 observations)
-    will be marked as NaN.
+    Regime is 1 when price > rolling mean, 0 otherwise; NaN for first (window-1) days.
 
     Parameters
     ----------
-    prices : pd.Series
-        Price series
+    prices : pd.Series or pd.DataFrame
+        Price series or single-column DataFrame.
     window : int
-        Number of days for moving average window
+        Moving average window length.
 
     Returns
     -------
     pd.Series
-        Regime series with 1 for uptrend, 0 for downtrend
+        Regime labels (0 or 1) indexed by date.
     """
-    # Ensure input is a Series (use 'Close' if DataFrame)
+    # allow DataFrame input
     if isinstance(prices, pd.DataFrame):
         if 'Close' in prices.columns:
-            prices = prices['Close']
+            series = prices['Close']
         else:
-            prices = prices.iloc[:, 0]
+            series = prices.iloc[:, 0]
+    else:
+        series = prices
 
-    sma = prices.rolling(window).mean()
-    regime = pd.Series(np.where(prices > sma, 1, 0), index=prices.index)
-    regime[:window - 1] = np.nan
+    sma = series.rolling(window).mean()
+    regime = pd.Series(np.where(series > sma, 1, 0), index=series.index)
+    regime.iloc[:window - 1] = np.nan
     return regime
 
 
-def outlier_regime_counts(returns: pd.Series, regimes: pd.Series, quantile: float) -> Tuple[int, int]:
-    """Count outlier days by regime (uptrend vs downtrend).
+def outlier_regime_counts(returns: pd.Series, regimes: pd.Series,
+                          quantile: float) -> Tuple[int, int]:
+    """Count outliers occurring in each regime.
 
     Parameters
     ----------
     returns : pd.Series
-        Daily return values
+        Daily return series.
     regimes : pd.Series
-        Market regime labels (0 or 1)
+        Regime classification (0 or 1).
     quantile : float
-        Quantile threshold for outliers
+        Outlier quantile threshold.
 
     Returns
     -------
     Tuple[int, int]
-        (downtrend outliers, uptrend outliers)
+        (count in downtrend, count in uptrend)
     """
     low = returns.quantile(1 - quantile)
     high = returns.quantile(quantile)
@@ -367,22 +348,20 @@ def outlier_regime_counts(returns: pd.Series, regimes: pd.Series, quantile: floa
 
 
 def regime_performance(returns: pd.Series, regimes: pd.Series) -> pd.DataFrame:
-    """Summarize performance by market regime.
+    """Summarize returns by market regime.
 
     Parameters
     ----------
     returns : pd.Series
-        Daily returns
+        Daily returns.
     regimes : pd.Series
-        Market regime classification
+        Regime classification (0 or 1).
 
     Returns
     -------
     pd.DataFrame
-        Statistics segmented by uptrend and downtrend periods
-    Returns a DataFrame with two rows ('downtrend', 'uptrend') and
-    columns for count, mean return, median, standard deviation,
-    annualised return, and percentage of total trading days.
+        Statistics (count, mean, median, std, annualised return, pct days)
+        for each regime ('downtrend', 'uptrend').
     """
     results = []
     valid_idx = regimes.dropna().index
@@ -404,40 +383,32 @@ def regime_performance(returns: pd.Series, regimes: pd.Series) -> pd.DataFrame:
 
 
 def save_dataframe(df: pd.DataFrame, path: str):
-    """Save DataFrame to CSV.
+    """Save DataFrame to a CSV file, creating parent dirs as needed.
 
     Parameters
     ----------
     df : pd.DataFrame
-        Data to save
+        DataFrame to save.
     path : str
-        Target file path
+        Target CSV file path.
     """
     os.makedirs(os.path.dirname(path), exist_ok=True)
     df.to_csv(path)
 
 
 def make_plots(returns: pd.Series, outliers: List[OutlierStats], regimes: pd.Series, output_dir: str):
-    """Generate time series, histogram, and scatter plots.
+    """Generate and save diagnostic plots of returns and regimes.
 
     Parameters
     ----------
     returns : pd.Series
-        Daily returns
+        Daily returns.
     outliers : List[OutlierStats]
-        Outlier statistics for annotation
+        Outlier statistics.
     regimes : pd.Series
-        Market regimes
+        Market regime labels.
     output_dir : str
-        Directory to save images
-    Produces three plots:
-    1. Time series of daily returns highlighting extreme tails.
-    2. Histogram of returns with a normal distribution overlay.
-    3. Scatter plot of returns coloured by regime (uptrend/downtrend).
-
-    The plots are intended to qualitatively match Faber's figures and
-    help the user visualise the distribution and clustering of
-    outliers.
+        Directory to write plot image files.
     """
     os.makedirs(output_dir, exist_ok=True)
 
@@ -488,53 +459,12 @@ def make_plots(returns: pd.Series, outliers: List[OutlierStats], regimes: pd.Ser
 
 
 def main():
-    """Command-line interface for running outlier analysis."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--ticker', type=str, default='^GSPC')
-    parser.add_argument('--start', type=str, default='1928-09-01')
-    parser.add_argument('--end', type=str, default='2010-12-31')
-    parser.add_argument('--csv', type=str, default=None)
-    parser.add_argument('--quantiles', type=float, nargs='+', default=[0.99, 0.999])
-    parser.add_argument('--ma-window', type=int, default=200)
-    parser.add_argument('--best-count', type=int, default=10)
-    parser.add_argument('--worst-count', type=int, default=10)
-    parser.add_argument('--output-dir', type=str, default='output')
-    parser.add_argument('--overwrite', action='store_true', help='Force download and overwrite any cached data')
-    args = parser.parse_args()
+    """Command-line interface for running outlier analysis.
 
-    prices_df = fetch_price_data(args.ticker, args.start, args.end, args.csv, overwrite=args.overwrite)
-    prices = prices_df['Close']
-    returns = compute_daily_returns(prices)
+    Parses arguments, orchestrates data loading, analysis, and plotting.
 
-    outlier_stats = [calculate_outlier_stats(returns, q) for q in args.quantiles]
-    outliers_df = pd.DataFrame([s.__dict__ for s in outlier_stats]).set_index("quantile")
-    save_dataframe(outliers_df, os.path.join(args.output_dir, "outlier_stats.csv"))
-
-    all_days, miss_best, miss_worst, miss_both = scenario_returns(returns, args.best_count, args.worst_count)
-    scenarios = [
-        {"scenario": "all_days", "annualised_return": annualised_return(all_days)},
-        {"scenario": "miss_best", "annualised_return": annualised_return(miss_best)},
-        {"scenario": "miss_worst", "annualised_return": annualised_return(miss_worst)},
-        {"scenario": "miss_both", "annualised_return": annualised_return(miss_both)}
-    ]
-    save_dataframe(pd.DataFrame(scenarios).set_index("scenario"), os.path.join(args.output_dir, "return_scenarios.csv"))
-
-    regimes = moving_average_regime(prices, args.ma_window)
-    save_dataframe(regime_performance(returns, regimes).set_index("regime"), os.path.join(args.output_dir, "regime_performance.csv"))
-
-    regime_outliers = [
-        {"quantile": q, "outliers_in_downtrend": d, "outliers_in_uptrend": u}
-        for q in args.quantiles
-        for d, u in [outlier_regime_counts(returns, regimes, q)]
-    ]
-    save_dataframe(pd.DataFrame(regime_outliers).set_index("quantile"), os.path.join(args.output_dir, "outlier_regime_counts.csv"))
-
-    make_plots(returns, outlier_stats, regimes, args.output_dir)
-    print(f"✅ Analysis complete. Results saved to '{args.output_dir}'")
-
-
-if __name__ == '__main__':
-    main()
+    Command-line arguments mirror docstring at top of file.
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('--ticker', type=str, default='^GSPC')
     parser.add_argument('--start', type=str, default='1928-09-01')
