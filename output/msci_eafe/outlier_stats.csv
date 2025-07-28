@@ -15,7 +15,7 @@ dtype: float64","Ticker
 EFA   -0.056468
 EFA   -0.056468
 dtype: float64","Ticker
-EFA    0.060250
+EFA    0.060251
 EFA    0.060251
 dtype: float64","Ticker
 EFA    0.017166
@@ -34,8 +34,8 @@ dtype: float64"
 EFA   -0.078755
 EFA   -0.078755
 Name: 0.0010000000000000009, dtype: float64","Ticker
-EFA    0.080559
-EFA    0.080560
+EFA    0.08056
+EFA    0.08056
 Name: 0.999, dtype: float64",2349,2349,"Ticker
 EFA   -0.100015
 EFA   -0.100015
