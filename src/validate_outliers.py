@@ -417,13 +417,14 @@ def make_plots(returns: pd.Series, outliers: List[OutlierStats], regimes: pd.Ser
     ax.plot(returns.index, returns.values, linewidth=0.5)
     for stat in outliers:
         extreme = returns[(returns <= stat.threshold_low) | (returns >= stat.threshold_high)].dropna()
-        # Ensure index and values are 1D arrays of the same length and not empty
         x = np.asarray(extreme.index)
         y = np.asarray(extreme.values)
+        # only plot if x and y align
         if x.ndim == 1 and y.ndim == 1 and len(x) == len(y) and len(x) > 0:
             ax.scatter(x, y, s=10, alpha=0.7, label=f">{stat.quantile*100:.1f}% tails")
-    ax.set_title("Daily Returns with Outliers")
-    ax.legend()
+    handles, labels = ax.get_legend_handles_labels()
+    if handles:
+        ax.legend()
     fig.tight_layout()
     fig.savefig(os.path.join(output_dir, "returns_time_series.png"))
     plt.close(fig)
@@ -441,16 +442,13 @@ def make_plots(returns: pd.Series, outliers: List[OutlierStats], regimes: pd.Ser
 
     # Plot 3: scatter by regime
     fig, ax = plt.subplots(figsize=(10, 5))
-    valid = regimes.dropna().index
-    # Ensure valid is aligned with returns and colormap, and all are numpy arrays of the same length
-    valid_returns = returns.loc[valid]
-    valid_regimes = regimes.loc[valid]
-    x = np.asarray(valid)
-    y = np.asarray(valid_returns)
-    colormap = np.array(['red' if x == 0 else 'green' for x in valid_regimes])
-    # Only plot if lengths match and not empty
-    if x.ndim == 1 and y.ndim == 1 and len(x) == len(y) == len(colormap) and len(x) > 0:
-        ax.scatter(x, y, c=colormap, s=10, alpha=0.6)
+    # align returns and regimes on the same dates
+    sub = pd.concat([returns, regimes], axis=1).dropna()
+    if not sub.empty:
+        vals = sub.iloc[:, 0]           # returns column
+        regs = sub.iloc[:, 1].astype(int)  # regime column
+        colors = ['red' if r == 0 else 'green' for r in regs]
+        ax.scatter(sub.index, vals, c=colors, s=10, alpha=0.6)
     ax.axhline(0, color='black', linewidth=0.5)
     ax.set_title("Returns by Market Regime")
     fig.tight_layout()
