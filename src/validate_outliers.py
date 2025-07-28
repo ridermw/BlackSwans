@@ -79,12 +79,15 @@ class OutlierStats:
     max_high: float
 
 
-def fetch_price_data(ticker: str, start: str, end: str, csv_path: Optional[str] = None) -> pd.DataFrame:
+def fetch_price_data(ticker: str, start: str, end: str, csv_path: Optional[str] = None, overwrite: bool = False) -> pd.DataFrame:
     """Load historical price data.
 
     If ``csv_path`` is provided and the file exists, it will be
-    loaded instead of hitting the network.  Otherwise the function
-    attempts to download daily price history via ``yfinance``.
+    loaded instead of hitting the network. Otherwise, the function
+    checks for a cached file in ./data, and only downloads if not found
+    or if the file does not cover the requested date range. If --overwrite
+    is set, always download and overwrite the file.
+    Downloaded data is always saved to ./data for future use.
 
     Parameters
     ----------
@@ -105,19 +108,80 @@ def fetch_price_data(ticker: str, start: str, end: str, csv_path: Optional[str] 
         daily closing prices.  The index will contain all trading days
         between start and end inclusive.
     """
+    # Helper function to robustly load CSV with or without Date column
+    def load_csv_with_date_index(path):
+        df = pd.read_csv(path)
+        # Try to find a date column
+        date_col = None
+        for candidate in ["Date", "date", "DATE"]:
+            if candidate in df.columns:
+                date_col = candidate
+                break
+        if date_col is not None:
+            df[date_col] = pd.to_datetime(df[date_col])
+            df = df.set_index(date_col)
+        else:
+            # Assume index is already dates
+            df.index = pd.to_datetime(df.index)
+        df = df.sort_index()
+        return df
+
+    # Determine the canonical data directory and filename
+    data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+    os.makedirs(data_dir, exist_ok=True)
+    default_filename = f"{ticker.replace('^','_')}_{start}_to_{end}.csv"
+    default_path = os.path.join(data_dir, default_filename)
+
+    # Overwrite disables all caching
+    if overwrite:
+        if yf is None:
+            raise RuntimeError("yfinance not installed and no CSV provided")
+        data = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=False)
+        if data.empty:
+            raise ValueError(f"No data returned for {ticker} from {start} to {end}")
+        data = data.rename(columns={"Adj Close": "Close"})
+        # Save to canonical data file for future use
+        data_to_save = data.copy()
+        data_to_save.index.name = "Date"
+        data_to_save.to_csv(default_path)
+        return data[["Close"]]
+
+    # Priority: explicit csv_path > default_path > download
     if csv_path and os.path.exists(csv_path):
-        df = pd.read_csv(csv_path, parse_dates=["Date"]).set_index("Date").sort_index()
+        df = load_csv_with_date_index(csv_path)
         if "Close" not in df.columns and "Adj Close" in df.columns:
             df["Close"] = df["Adj Close"]
-        return df[["Close"]].loc[start:end]
+        if df.index.min() <= pd.to_datetime(start) and df.index.max() >= pd.to_datetime(end):
+            return df[["Close"]].loc[start:end]
+        # fall through to cached
 
+    if os.path.exists(default_path):
+        df = load_csv_with_date_index(default_path)
+        if "Close" not in df.columns and "Adj Close" in df.columns:
+            df["Close"] = df["Adj Close"]
+        # if cached covers range, return slice
+        if df.index.min() <= pd.to_datetime(start) and df.index.max() >= pd.to_datetime(end):
+            return df[["Close"]].loc[start:end]
+        # else overwrite by full download
+        if yf is None:
+            raise RuntimeError("yfinance not installed and no CSV provided")
+        data = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=False)
+        if data.empty:
+            raise ValueError(f"No data returned for {ticker} from {start} to {end}")
+        data = data.rename(columns={"Adj Close": "Close"})
+        data.index.name = "Date"
+        data.to_csv(default_path)
+        return data[["Close"]]
+
+    # If no file exists, download all
     if yf is None:
         raise RuntimeError("yfinance not installed and no CSV provided")
-
     data = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=False)
     if data.empty:
         raise ValueError(f"No data returned for {ticker} from {start} to {end}")
     data = data.rename(columns={"Adj Close": "Close"})
+    data.index.name = "Date"
+    data.to_csv(default_path)
     return data[["Close"]]
 
 
@@ -435,9 +499,56 @@ def main():
     parser.add_argument('--best-count', type=int, default=10)
     parser.add_argument('--worst-count', type=int, default=10)
     parser.add_argument('--output-dir', type=str, default='output')
+    parser.add_argument('--overwrite', action='store_true', help='Force download and overwrite any cached data')
     args = parser.parse_args()
 
-    prices_df = fetch_price_data(args.ticker, args.start, args.end, args.csv)
+    prices_df = fetch_price_data(args.ticker, args.start, args.end, args.csv, overwrite=args.overwrite)
+    prices = prices_df['Close']
+    returns = compute_daily_returns(prices)
+
+    outlier_stats = [calculate_outlier_stats(returns, q) for q in args.quantiles]
+    outliers_df = pd.DataFrame([s.__dict__ for s in outlier_stats]).set_index("quantile")
+    save_dataframe(outliers_df, os.path.join(args.output_dir, "outlier_stats.csv"))
+
+    all_days, miss_best, miss_worst, miss_both = scenario_returns(returns, args.best_count, args.worst_count)
+    scenarios = [
+        {"scenario": "all_days", "annualised_return": annualised_return(all_days)},
+        {"scenario": "miss_best", "annualised_return": annualised_return(miss_best)},
+        {"scenario": "miss_worst", "annualised_return": annualised_return(miss_worst)},
+        {"scenario": "miss_both", "annualised_return": annualised_return(miss_both)}
+    ]
+    save_dataframe(pd.DataFrame(scenarios).set_index("scenario"), os.path.join(args.output_dir, "return_scenarios.csv"))
+
+    regimes = moving_average_regime(prices, args.ma_window)
+    save_dataframe(regime_performance(returns, regimes).set_index("regime"), os.path.join(args.output_dir, "regime_performance.csv"))
+
+    regime_outliers = [
+        {"quantile": q, "outliers_in_downtrend": d, "outliers_in_uptrend": u}
+        for q in args.quantiles
+        for d, u in [outlier_regime_counts(returns, regimes, q)]
+    ]
+    save_dataframe(pd.DataFrame(regime_outliers).set_index("quantile"), os.path.join(args.output_dir, "outlier_regime_counts.csv"))
+
+    make_plots(returns, outlier_stats, regimes, args.output_dir)
+    print(f"✅ Analysis complete. Results saved to '{args.output_dir}'")
+
+
+if __name__ == '__main__':
+    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ticker', type=str, default='^GSPC')
+    parser.add_argument('--start', type=str, default='1928-09-01')
+    parser.add_argument('--end', type=str, default='2010-12-31')
+    parser.add_argument('--csv', type=str, default=None)
+    parser.add_argument('--quantiles', type=float, nargs='+', default=[0.99, 0.999])
+    parser.add_argument('--ma-window', type=int, default=200)
+    parser.add_argument('--best-count', type=int, default=10)
+    parser.add_argument('--worst-count', type=int, default=10)
+    parser.add_argument('--output-dir', type=str, default='output')
+    parser.add_argument('--overwrite', action='store_true', help='Force download and overwrite any cached data')
+    args = parser.parse_args()
+
+    prices_df = fetch_price_data(args.ticker, args.start, args.end, args.csv, overwrite=args.overwrite)
     prices = prices_df['Close']
     returns = compute_daily_returns(prices)
 
