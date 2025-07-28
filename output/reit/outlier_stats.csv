@@ -1,63 +1,63 @@
 quantile,threshold_low,threshold_high,count_low,count_high,mean_low,mean_high,median_low,median_high,std_low,std_high,min_low,max_high
 0.99,"Ticker
-^GSPC   -0.028138
-^GSPC   -0.028138
+VNQ   -0.082101
+VNQ   -0.082101
 Name: 0.010000000000000009, dtype: float64","Ticker
-^GSPC    0.028795
-^GSPC    0.028795
-Name: 0.99, dtype: float64",10347,10347,"Ticker
-^GSPC   -0.041849
-^GSPC   -0.041849
+VNQ    0.086636
+VNQ    0.086637
+Name: 0.99, dtype: float64",1575,1575,"Ticker
+VNQ   -0.107235
+VNQ   -0.107235
 dtype: float64","Ticker
-^GSPC    0.040881
-^GSPC    0.040881
+VNQ    0.118809
+VNQ    0.118809
 dtype: float64","Ticker
-^GSPC   -0.034461
-^GSPC   -0.034461
+VNQ   -0.093949
+VNQ   -0.093949
 dtype: float64","Ticker
-^GSPC    0.03693
-^GSPC    0.03693
+VNQ    0.107883
+VNQ    0.107883
 dtype: float64","Ticker
-^GSPC    0.021561
-^GSPC    0.021561
+VNQ    0.029475
+VNQ    0.029475
 dtype: float64","Ticker
-^GSPC    0.014438
-^GSPC    0.014438
+VNQ    0.026322
+VNQ    0.026322
 dtype: float64","Ticker
-^GSPC   -0.204669
-^GSPC   -0.204669
+VNQ   -0.195137
+VNQ   -0.195137
 dtype: float64","Ticker
-^GSPC    0.1158
-^GSPC    0.1158
+VNQ    0.170065
+VNQ    0.170065
 dtype: float64"
 0.999,"Ticker
-^GSPC   -0.061167
-^GSPC   -0.061167
+VNQ   -0.137902
+VNQ   -0.137903
 Name: 0.0010000000000000009, dtype: float64","Ticker
-^GSPC    0.053818
-^GSPC    0.053818
-Name: 0.999, dtype: float64",10347,10347,"Ticker
-^GSPC   -0.087635
-^GSPC   -0.087635
+VNQ    0.158659
+VNQ    0.158659
+Name: 0.999, dtype: float64",1575,1575,"Ticker
+VNQ   -0.168918
+VNQ   -0.168918
 dtype: float64","Ticker
-^GSPC    0.073806
-^GSPC    0.073806
+VNQ    0.165902
+VNQ    0.165902
 dtype: float64","Ticker
-^GSPC   -0.076167
-^GSPC   -0.076167
+VNQ   -0.168918
+VNQ   -0.168918
 dtype: float64","Ticker
-^GSPC    0.064723
-^GSPC    0.064723
+VNQ    0.165902
+VNQ    0.165902
 dtype: float64","Ticker
-^GSPC    0.038289
-^GSPC    0.038289
+VNQ    0.026219
+VNQ    0.026219
 dtype: float64","Ticker
-^GSPC    0.020436
-^GSPC    0.020436
+VNQ    0.004163
+VNQ    0.004163
 dtype: float64","Ticker
-^GSPC   -0.204669
-^GSPC   -0.204669
+VNQ   -0.195137
+VNQ   -0.195137
 dtype: float64","Ticker
-^GSPC    0.1158
-^GSPC    0.1158
+VNQ    0.170065
+VNQ    0.170065
 dtype: float64"

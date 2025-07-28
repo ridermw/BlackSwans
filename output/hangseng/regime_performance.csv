@@ -1,27 +1,27 @@
 regime,count,pct_of_total,mean,median,std,annualised_return
-downtrend,3225,0.3177652970736033,"Ticker
-^GSPC   -0.000951
-^GSPC   -0.000951
+downtrend,1974,0.34408227296496424,"Ticker
+^HSI   -0.001223
+^HSI   -0.001223
 dtype: float64","Ticker
-^GSPC   -0.000833
-^GSPC   -0.000833
+^HSI   -0.001001
+^HSI   -0.001001
 dtype: float64","Ticker
-^GSPC    0.014727
-^GSPC    0.014727
+^HSI    0.023775
+^HSI    0.023775
 dtype: float64","Ticker
-^GSPC   -0.234642
-^GSPC   -0.234642
+^HSI   -0.317498
+^HSI   -0.317498
 dtype: float64"
-uptrend,6924,0.6822347029263967,"Ticker
-^GSPC    0.00092
-^GSPC    0.00092
+uptrend,3763,0.6559177270350357,"Ticker
+^HSI    0.001398
+^HSI    0.001398
 dtype: float64","Ticker
-^GSPC    0.000854
-^GSPC    0.000854
+^HSI    0.001022
+^HSI    0.001022
 dtype: float64","Ticker
-^GSPC    0.008297
-^GSPC    0.008297
+^HSI    0.013518
+^HSI    0.013518
 dtype: float64","Ticker
-^GSPC    0.249852
-^GSPC    0.249852
+^HSI    0.389788
+^HSI    0.389788
 dtype: float64"

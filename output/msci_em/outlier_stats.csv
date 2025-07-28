@@ -1,63 +1,63 @@
 quantile,threshold_low,threshold_high,count_low,count_high,mean_low,mean_high,median_low,median_high,std_low,std_high,min_low,max_high
 0.99,"Ticker
-^GSPC   -0.031018
-^GSPC   -0.031018
+EEM   -0.06464
+EEM   -0.06464
 Name: 0.010000000000000009, dtype: float64","Ticker
-^GSPC    0.032882
-^GSPC    0.032882
-Name: 0.99, dtype: float64",5798,5798,"Ticker
-^GSPC   -0.046079
-^GSPC   -0.046079
+EEM    0.065841
+EEM    0.065841
+Name: 0.99, dtype: float64",1943,1943,"Ticker
+EEM   -0.090158
+EEM   -0.090158
 dtype: float64","Ticker
-^GSPC    0.045217
-^GSPC    0.045217
+EEM    0.103296
+EEM    0.103296
 dtype: float64","Ticker
-^GSPC   -0.040913
-^GSPC   -0.040913
+EEM   -0.080487
+EEM   -0.080487
 dtype: float64","Ticker
-^GSPC    0.040035
-^GSPC    0.040035
+EEM    0.081187
+EEM    0.081187
 dtype: float64","Ticker
-^GSPC    0.015227
-^GSPC    0.015227
+EEM    0.022909
+EEM    0.022909
 dtype: float64","Ticker
-^GSPC    0.015668
-^GSPC    0.015668
+EEM    0.045362
+EEM    0.045362
 dtype: float64","Ticker
-^GSPC   -0.09035
-^GSPC   -0.09035
+EEM   -0.161662
+EEM   -0.161662
 dtype: float64","Ticker
-^GSPC    0.1158
-^GSPC    0.1158
+EEM    0.227699
+EEM    0.227699
 dtype: float64"
 0.999,"Ticker
-^GSPC   -0.06775
-^GSPC   -0.06775
+EEM   -0.1174
+EEM   -0.1174
 Name: 0.0010000000000000009, dtype: float64","Ticker
-^GSPC    0.063332
-^GSPC    0.063332
-Name: 0.999, dtype: float64",5798,5798,"Ticker
-^GSPC   -0.080092
-^GSPC   -0.080092
+EEM    0.147818
+EEM    0.147818
+Name: 0.999, dtype: float64",1943,1943,"Ticker
+EEM   -0.144467
+EEM   -0.144467
 dtype: float64","Ticker
-^GSPC    0.082008
-^GSPC    0.082008
+EEM    0.218513
+EEM    0.218513
 dtype: float64","Ticker
-^GSPC   -0.082117
-^GSPC   -0.082117
+EEM   -0.144467
+EEM   -0.144467
 dtype: float64","Ticker
-^GSPC    0.069985
-^GSPC    0.069985
+EEM    0.218513
+EEM    0.218513
 dtype: float64","Ticker
-^GSPC    0.009536
-^GSPC    0.009536
+EEM    0.017195
+EEM    0.017195
 dtype: float64","Ticker
-^GSPC    0.02136
-^GSPC    0.02136
+EEM    0.009186
+EEM    0.009186
 dtype: float64","Ticker
-^GSPC   -0.09035
-^GSPC   -0.09035
+EEM   -0.161662
+EEM   -0.161662
 dtype: float64","Ticker
-^GSPC    0.1158
-^GSPC    0.1158
+EEM    0.227699
+EEM    0.227699
 dtype: float64"
