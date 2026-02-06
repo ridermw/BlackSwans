@@ -81,12 +81,19 @@ def get_ticker_info(ticker_code: str) -> TickerInfo:
         )
 
     symbol, filename = TICKER_MAP[ticker_code]
-    filepath = DATA_DIR / filename
+    filepath = (DATA_DIR / filename).resolve()
+
+    # Validate the resolved path stays within the data directory
+    if not str(filepath).startswith(str(DATA_DIR.resolve())):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid data file path",
+        )
 
     if not filepath.exists():
         raise HTTPException(
             status_code=404,
-            detail=f"Data file not found: {filepath}",
+            detail=f"Data file not found for ticker '{ticker_code}'",
         )
 
     # Parse dates from filename

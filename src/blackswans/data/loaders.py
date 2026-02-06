@@ -32,6 +32,19 @@ def _load_csv(path: Path) -> pd.DataFrame:
     return df.sort_index()
 
 
+def _safe_path(base: Path, target: Path) -> Path:
+    """Resolve *target* and ensure it lives under *base*.
+
+    Raises ``ValueError`` if the resolved path escapes the base directory
+    (e.g. via ``../`` traversal or absolute path injection).
+    """
+    resolved = target.resolve()
+    base_resolved = base.resolve()
+    if not str(resolved).startswith(str(base_resolved) + "/") and resolved != base_resolved:
+        raise ValueError(f"Path {target} escapes allowed directory {base}")
+    return resolved
+
+
 def fetch_price_data(
     ticker: str,
     start: str,
@@ -45,8 +58,10 @@ def fetch_price_data(
     range, use it; otherwise download via yfinance and cache.
     """
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    cache_file = f"{ticker.replace('^', '_')}_{start}_to_{end}.csv"
-    cache_path = DATA_DIR / cache_file
+    # Sanitise ticker to prevent path traversal in cache filename
+    safe_ticker = ticker.replace("^", "_").replace("/", "_").replace("\\", "_").replace("..", "_")
+    cache_file = f"{safe_ticker}_{start}_to_{end}.csv"
+    cache_path = _safe_path(DATA_DIR, DATA_DIR / cache_file)
 
     def _from_csv(path: Path) -> pd.DataFrame:
         df = _load_csv(path)
@@ -59,7 +74,7 @@ def fetch_price_data(
 
     # explicit CSV override
     if csv_path:
-        csv_file = Path(csv_path)
+        csv_file = Path(csv_path).resolve()
         if csv_file.exists():
             logging.info(f"Loading prices from {csv_file}")
             return _from_csv(csv_file)
