@@ -21,12 +21,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Clone wiki repo
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WIKI_URL: "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git"
-        run: |
-          git clone "$WIKI_URL" wiki-repo
+      - name: Checkout wiki repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: wiki-repo
 
       - name: Sync wiki content
         env:
@@ -36,10 +36,15 @@ jobs:
           rm -f wiki-repo/*.md
 
           # Copy docs/wiki files with filename transformation
-          cp docs/wiki/architecture.md      wiki-repo/Architecture.md
-          cp docs/wiki/data_dictionary.md   wiki-repo/Data-Dictionary.md
-          cp docs/wiki/analysis_methods.md  wiki-repo/Analysis-Methods.md
-          cp docs/wiki/changelog.md         wiki-repo/Changelog.md
+          # Transform snake_case.md -> Title-Case.md
+          for file in docs/wiki/*.md; do
+            if [ -f "$file" ]; then
+              basename=$(basename "$file" .md)
+              # Transform: split on _, capitalize each word, join with -
+              titlecase=$(echo "$basename" | sed 's/_/ /g; s/\b\(.\)/\u\1/g; s/ /-/g')
+              cp "$file" "wiki-repo/${titlecase}.md"
+            fi
+          done
 
           # Generate Home.md landing page
           cat > wiki-repo/Home.md << EOF
