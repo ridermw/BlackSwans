@@ -207,13 +207,18 @@ def run_full_validation(
     start: str = "1928-09-01",
     end: str = "2010-12-31",
     output_dir: str = "output/validation",
+    prices_df: "Optional[pd.DataFrame]" = None,
 ) -> dict:
-    """Run complete validation of all 4 claims."""
+    """Run complete validation of all 4 claims.
+
+    If *prices_df* is supplied it is used directly, skipping file I/O.
+    """
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
 
-    logging.info(f"Loading data: {ticker} {start} to {end}")
-    prices_df = fetch_price_data(ticker, start, end, csv_path=csv_path)
+    if prices_df is None:
+        logging.info(f"Loading data: {ticker} {start} to {end}")
+        prices_df = fetch_price_data(ticker, start, end, csv_path=csv_path)
     prices = prices_df["Close"]
     returns = compute_daily_returns(prices)
 

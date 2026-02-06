@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import numpy as np
 
-from blackswans.data.loaders import fetch_price_data
+from blackswans.data.loaders import load_price_csv
 from blackswans.data.transforms import compute_daily_returns
 from blackswans.analysis.outliers import calculate_outlier_stats
 from blackswans.analysis.scenarios import scenario_returns, annualised_return
@@ -143,8 +143,6 @@ async def run_analysis(
     try:
         # Get ticker info and data file
         ticker_info = get_ticker_info(ticker)
-        csv_path = ticker_info.data_file
-        symbol = ticker_info.ticker_symbol
 
         # Use file's date range if not provided
         if start is None:
@@ -155,8 +153,8 @@ async def run_analysis(
         # Parse quantiles
         quantile_list = [float(q.strip()) for q in quantiles.split(",")]
 
-        logger.info(f"Loading data for {ticker} ({symbol}): {start} to {end}")
-        prices_df = fetch_price_data(symbol, start, end, csv_path=csv_path)
+        logger.info(f"Loading data for {ticker} ({ticker_info.ticker_symbol}): {start} to {end}")
+        prices_df = load_price_csv(Path(ticker_info.data_file), start, end)
         prices = prices_df["Close"]
         returns = compute_daily_returns(prices)
 
@@ -231,8 +229,6 @@ async def run_validation(
     try:
         # Get ticker info and data file
         ticker_info = get_ticker_info(ticker)
-        csv_path = ticker_info.data_file
-        symbol = ticker_info.ticker_symbol
 
         # Use file's date range if not provided
         if start is None:
@@ -240,15 +236,18 @@ async def run_validation(
         if end is None:
             end = ticker_info.end_date
 
-        logger.info(f"Running validation for {ticker} ({symbol}): {start} to {end}")
+        logger.info(f"Running validation for {ticker} ({ticker_info.ticker_symbol}): {start} to {end}")
 
-        # Run full validation (creates output directory but we ignore it)
+        # Pre-load data from validated path, then pass DataFrame directly
+        prices_df = load_price_csv(Path(ticker_info.data_file), start, end)
+
         summary = run_full_validation(
-            csv_path=csv_path,
-            ticker=symbol,
+            csv_path=ticker_info.data_file,
+            ticker=ticker_info.ticker_symbol,
             start=start,
             end=end,
             output_dir=f"output/api_validation_{ticker}",
+            prices_df=prices_df,
         )
 
         # Format claim details
@@ -297,15 +296,13 @@ async def get_chart_data(
     """Return chart-ready data: daily returns with outlier flags and regime labels."""
     try:
         ticker_info = get_ticker_info(ticker)
-        csv_path = ticker_info.data_file
-        symbol = ticker_info.ticker_symbol
 
         if start is None:
             start = ticker_info.start_date
         if end is None:
             end = ticker_info.end_date
 
-        prices_df = fetch_price_data(symbol, start, end, csv_path=csv_path)
+        prices_df = load_price_csv(Path(ticker_info.data_file), start, end)
         prices = prices_df["Close"]
         returns = compute_daily_returns(prices)
 
