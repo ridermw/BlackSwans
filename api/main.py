@@ -334,20 +334,22 @@ async def get_chart_data(
 
         # Histogram data
         clean = returns.dropna()
-        counts, bin_edges = np.histogram(clean * 100, bins=80)
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-        mu = float(clean.mean() * 100)
-        sigma = float(clean.std() * 100)
-        bin_width = float(bin_edges[1] - bin_edges[0])
-        normal_expected = [
-            float(len(clean) * bin_width * np.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * np.sqrt(2 * np.pi)))
-            for x in bin_centers
-        ]
-
-        histogram = [
-            HistogramBin(bin_center=float(bc), count=int(c), normal_expected=float(ne))
-            for bc, c, ne in zip(bin_centers, counts, normal_expected)
-        ]
+        histogram = []
+        if len(clean) > 1:
+            mu = float(clean.mean() * 100)
+            sigma = float(clean.std() * 100)
+            if sigma > 0:
+                counts, bin_edges = np.histogram(clean * 100, bins=80)
+                bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+                bin_width = float(bin_edges[1] - bin_edges[0])
+                normal_expected = [
+                    float(len(clean) * bin_width * np.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * np.sqrt(2 * np.pi)))
+                    for x in bin_centers
+                ]
+                histogram = [
+                    HistogramBin(bin_center=float(bc), count=int(c), normal_expected=float(ne))
+                    for bc, c, ne in zip(bin_centers, counts, normal_expected)
+                ]
 
         # Scenario impacts for multiple N values
         baseline_cagr = annualised_return(returns)

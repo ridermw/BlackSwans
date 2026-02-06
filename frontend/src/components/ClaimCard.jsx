@@ -20,30 +20,29 @@ const ClaimCard = ({ claim }) => {
 
     return (
       <div className="metrics">
-        {Object.entries(claim.metrics).map(([key, value]) => {
-          // Skip nested objects like scenarios
-          if (typeof value === 'object') return null;
+        {Object.entries(claim.metrics)
+          .filter(([, value]) => value != null && typeof value !== 'object')
+          .map(([key, value]) => {
+            const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            let formattedValue = value;
 
-          const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-          let formattedValue = value;
-
-          if (typeof value === 'number') {
-            if (key.includes('p_value') && value < 0.001) {
-              formattedValue = '< 0.001';
-            } else if (key.includes('pct') || key.includes('impact')) {
-              formattedValue = `${value.toFixed(2)}%`;
-            } else {
-              formattedValue = value.toFixed(2);
+            if (typeof value === 'number') {
+              if (key.includes('p_value') && value < 0.001) {
+                formattedValue = '< 0.001';
+              } else if (key.includes('pct') || key.includes('impact')) {
+                formattedValue = `${value.toFixed(2)}%`;
+              } else {
+                formattedValue = value.toFixed(2);
+              }
             }
-          }
 
-          return (
-            <div key={key} className="metric">
-              <span className="metric-label">{formattedKey}:</span>
-              <span className="metric-value">{formattedValue}</span>
-            </div>
-          );
-        })}
+            return (
+              <div key={key} className="metric">
+                <span className="metric-label">{formattedKey}:</span>
+                <span className="metric-value">{formattedValue}</span>
+              </div>
+            );
+          })}
       </div>
     );
   };

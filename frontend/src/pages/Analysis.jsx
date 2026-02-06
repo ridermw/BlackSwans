@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchChartData, fetchAnalysis, fetchTickers } from '../services/api';
 import MarketSelector from '../components/MarketSelector';
 import TimeSeriesChart from '../components/TimeSeriesChart';
@@ -52,9 +52,11 @@ const Analysis = () => {
     }
   }, [selectedTicker]);
 
+  const navigate = useNavigate();
+
   const handleTickerChange = (newTicker) => {
     setSelectedTicker(newTicker);
-    window.history.pushState({}, '', `/analysis/${newTicker}`);
+    navigate(`/analysis/${newTicker}`);
   };
 
   if (loading) {
