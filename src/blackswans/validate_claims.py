@@ -205,7 +205,7 @@ def run_full_validation(
     csv_path: str,
     ticker: str = "^GSPC",
     start: str = "1928-09-01",
-    end: str = "2010-12-31",
+    end: str = "2025-01-31",
     output_dir: str = "output/validation",
     prices_df: "Optional[pd.DataFrame]" = None,
 ) -> dict:
@@ -293,7 +293,7 @@ if __name__ == "__main__":
     parser.add_argument("--csv", type=str, required=True)
     parser.add_argument("--ticker", type=str, default="^GSPC")
     parser.add_argument("--start", type=str, default="1928-09-01")
-    parser.add_argument("--end", type=str, default="2010-12-31")
+    parser.add_argument("--end", type=str, default="2025-01-31")
     parser.add_argument("--output-dir", type=str, default="output/validation")
     args = parser.parse_args()
 

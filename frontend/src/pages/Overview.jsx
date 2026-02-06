@@ -63,7 +63,7 @@ const Overview = () => {
           <li><strong>Scenario analysis</strong> for outlier impact quantification</li>
         </ul>
         <p>
-          All analyses use S&P 500 daily returns from 1928-2010 (~20,000 trading days).
+          All analyses use S&P 500 daily returns from 1928-2025 (~24,000 trading days).
         </p>
       </section>
     </div>

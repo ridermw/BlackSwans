@@ -1,7 +1,7 @@
 # Black Swans Validation
 
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue)
-![Tests](https://img.shields.io/badge/tests-66%20passing-green)
+![Tests](https://img.shields.io/badge/tests-68%20passing-green)
 ![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue)
 
 > Validate and extend the analysis from **"Where the Black Swans Hide & The 10 Best Days Myth"** by Faber & CQR (Aug 2011).
@@ -37,19 +37,19 @@ pip install -e ".[dev]"
 
 ```bash
 # Using the package CLI
-blackswans --ticker ^GSPC --start 1928-09-01 --end 2010-12-31 \
-  --csv data/_GSPC_1928-09-01_to_2010-12-31.csv --output-dir output/sp500
+blackswans --ticker ^GSPC --start 1928-09-04 --end 2025-01-31 \
+  --csv data/_GSPC_1928-09-04_to_2025-01-31.csv --output-dir output/sp500
 
 # Or using the legacy script
-python src/validate_outliers.py --ticker ^GSPC --start 1928-09-01 --end 2010-12-31
+python src/validate_outliers.py --ticker ^GSPC --start 1928-09-04 --end 2025-01-31
 ```
 
 ### Run the full validation (all 4 claims)
 
 ```bash
 python -m blackswans.validate_claims \
-  --csv data/_GSPC_1928-09-01_to_2010-12-31.csv \
-  --ticker ^GSPC --start 1928-09-01 --end 2010-12-31 \
+  --csv data/_GSPC_1928-09-04_to_2025-01-31.csv \
+  --ticker ^GSPC --start 1928-09-04 --end 2025-01-31 \
   --output-dir output/validation
 ```
 
@@ -79,8 +79,8 @@ BlackSwans/
 │   │   ├── cli.py               # CLI entry point
 │   │   └── validate_claims.py   # Full 4-claim validation
 │   └── validate_outliers.py     # Legacy wrapper
-├── tests/                       # 66 tests (pytest)
-├── data/                        # 12 index CSV files (1928-2010)
+├── tests/                       # 68 tests (pytest)
+├── data/                        # 12 index CSV files (1928-2025)
 ├── output/                      # Analysis results
 ├── docs/
 │   ├── audit_report.md          # M0 code & methodology audit
@@ -95,18 +95,18 @@ BlackSwans/
 
 | Index | Ticker | Period | File |
 |-------|--------|--------|------|
-| S&P 500 | ^GSPC | 1928-2010 | `_GSPC_1928-09-01_to_2010-12-31.csv` |
-| FTSE 100 | ^FTSE | 1970-2010 | `_FTSE_1970-01-01_to_2010-12-31.csv` |
-| DAX | ^GDAXI | 1970-2010 | `_GDAXI_1970-01-01_to_2010-12-31.csv` |
-| Nikkei 225 | ^N225 | 1970-2010 | `_N225_1970-01-01_to_2010-12-31.csv` |
-| Hang Seng | ^HSI | 1970-2010 | `_HSI_1970-01-01_to_2010-12-31.csv` |
-| ASX 200 | ^AXJO | 1970-2010 | `_AXJO_1970-01-01_to_2010-12-31.csv` |
-| CAC 40 | ^FCHI | 1970-2010 | `_FCHI_1970-01-01_to_2010-12-31.csv` |
-| TSX | ^GSPTSE | 1970-2010 | `_GSPTSE_1970-01-01_to_2010-12-31.csv` |
-| MSCI EAFE | EFA | 1970-2010 | `EFA_1970-01-01_to_2010-12-31.csv` |
-| MSCI EM | EEM | 1988-2010 | `EEM_1988-01-01_to_2010-12-31.csv` |
-| REITs | VNQ | 1970-2010 | `VNQ_1970-01-01_to_2010-12-31.csv` |
-| US Bonds | AGG | 1976-2010 | `AGG_1976-01-01_to_2010-12-31.csv` |
+| S&P 500 | ^GSPC | 1928-2025 | `_GSPC_1928-09-04_to_2025-01-31.csv` |
+| Nikkei 225 | ^N225 | 1970-2025 | `_N225_1970-01-05_to_2025-01-31.csv` |
+| FTSE 100 | ^FTSE | 1984-2025 | `_FTSE_1984-01-03_to_2025-01-31.csv` |
+| DAX | ^GDAXI | 1988-2025 | `_GDAXI_1987-12-30_to_2025-01-31.csv` |
+| CAC 40 | ^FCHI | 1990-2025 | `_FCHI_1990-03-01_to_2025-01-31.csv` |
+| ASX 200 | ^AXJO | 1993-2025 | `_AXJO_1992-11-23_to_2025-01-31.csv` |
+| TSX | ^GSPTSE | 1979-2025 | `_GSPTSE_1979-06-29_to_2025-01-31.csv` |
+| Hang Seng | ^HSI | 1987-2025 | `_HSI_1986-12-31_to_2025-01-28.csv` |
+| MSCI EAFE | EFA | 2001-2025 | `EFA_2001-08-27_to_2025-01-31.csv` |
+| MSCI EM | EEM | 2003-2025 | `EEM_2003-04-14_to_2025-01-31.csv` |
+| REITs | VNQ | 2004-2025 | `VNQ_2004-09-29_to_2025-01-31.csv` |
+| US Bonds | AGG | 2003-2025 | `AGG_2003-09-29_to_2025-01-31.csv` |
 
 Original paper: [SSRN 1908469](https://ssrn.com/abstract=1908469)
 

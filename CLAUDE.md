@@ -20,26 +20,26 @@ pip install -e ".[dev]"
 
 ```bash
 # Package CLI
-blackswans --ticker ^GSPC --start 1928-09-01 --end 2010-12-31 \
-  --csv data/_GSPC_1928-09-01_to_2010-12-31.csv --output-dir output/sp500
+blackswans --ticker ^GSPC --start 1928-09-01 --end 2025-01-31 \
+  --csv data/_GSPC_1928-09-04_to_2025-01-31.csv --output-dir output/sp500
 
 # Legacy wrapper (backward compatible)
-python src/validate_outliers.py --ticker ^GSPC --start 1928-09-01 --end 2010-12-31
+python src/validate_outliers.py --ticker ^GSPC --start 1928-09-01 --end 2025-01-31
 ```
 
 ### Running Full Validation (all 4 claims)
 
 ```bash
 python -m blackswans.validate_claims \
-  --csv data/_GSPC_1928-09-01_to_2010-12-31.csv \
-  --ticker ^GSPC --start 1928-09-01 --end 2010-12-31 \
+  --csv data/_GSPC_1928-09-04_to_2025-01-31.csv \
+  --ticker ^GSPC --start 1928-09-01 --end 2025-01-31 \
   --output-dir output/validation
 ```
 
 ### Running Tests
 
 ```bash
-pytest tests/ -v                                    # 66 tests
+pytest tests/ -v                                    # 68 tests
 pytest tests/ -v --cov=src/blackswans              # with coverage
 ```
 
@@ -126,7 +126,7 @@ Re-exports all public names from the package for backward compatibility. Delegat
 - **PEP8** conventions
 - Type annotations on function signatures
 - Docstrings on all public functions
-- 66 tests with pytest (100% coverage on core analysis modules)
+- 68 tests with pytest (100% coverage on core analysis modules)
 
 ## Testing
 
