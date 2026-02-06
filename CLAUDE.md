@@ -20,11 +20,11 @@ pip install -e ".[dev]"
 
 ```bash
 # Package CLI
-blackswans --ticker ^GSPC --start 1928-09-01 --end 2025-01-31 \
+blackswans --ticker ^GSPC --start 1928-09-04 --end 2025-01-31 \
   --csv data/_GSPC_1928-09-04_to_2025-01-31.csv --output-dir output/sp500
 
 # Legacy wrapper (backward compatible)
-python src/validate_outliers.py --ticker ^GSPC --start 1928-09-01 --end 2025-01-31
+python src/validate_outliers.py --ticker ^GSPC --start 1928-09-04 --end 2025-01-31
 ```
 
 ### Running Full Validation (all 4 claims)
@@ -32,7 +32,7 @@ python src/validate_outliers.py --ticker ^GSPC --start 1928-09-01 --end 2025-01-
 ```bash
 python -m blackswans.validate_claims \
   --csv data/_GSPC_1928-09-04_to_2025-01-31.csv \
-  --ticker ^GSPC --start 1928-09-01 --end 2025-01-31 \
+  --ticker ^GSPC --start 1928-09-04 --end 2025-01-31 \
   --output-dir output/validation
 ```
 

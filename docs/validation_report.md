@@ -134,7 +134,7 @@ The outlier rate in downtrends is approximately 2x higher than in uptrends (conf
 ### Important Caveats
 
 1. **No transaction costs**: The backtest assumes zero trading costs. A 200-day MA generates approximately 2-10 trades per year; at 0.1% round-trip cost, this represents a 0.2-1% annual drag.
-2. **Execution timing**: The regime signal compares today's closing price against the lagged 200-day MA (computed from yesterday's data). Since the MA is known before trading begins, the signal is observable intra-day.
+2. **Execution timing**: The regime signal compares today's closing price against the lagged 200-day MA (computed from yesterday's data). The position is determined at the close.
 3. **Survivorship bias**: The S&P 500 index composition changes over time.
 
 ### Interpretation
@@ -150,9 +150,9 @@ The strategy outperforms buy-and-hold on both an absolute and risk-adjusted basi
 ## Methodology Notes
 
 ### Data
-- S&P 500 price data from Yahoo Finance, 1928-09-01 to 2010-12-31
+- S&P 500 price data from Yahoo Finance, 1928-09-04 to 2025-01-31
 - Daily percentage returns computed via `pct_change(fill_method=None)`
-- 20,673 trading days
+- 24,216 trading days (original validation used 20,673 days through 2010-12-31)
 
 ### Statistical Tests Used
 - **Normality**: Kolmogorov-Smirnov, Jarque-Bera

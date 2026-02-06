@@ -21,7 +21,7 @@ def main():
     """Command-line interface for running outlier analysis."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--ticker', type=str, default='^GSPC')
-    parser.add_argument('--start', type=str, default='1928-09-01')
+    parser.add_argument('--start', type=str, default='1928-09-04')
     parser.add_argument('--end', type=str, default='2025-01-31')
     parser.add_argument('--csv', type=str)
     parser.add_argument('--quantiles', type=float, nargs='+', default=[0.99, 0.999])
