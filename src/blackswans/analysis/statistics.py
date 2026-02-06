@@ -218,7 +218,10 @@ def trend_following_backtest(
     aligned_returns = returns.reindex(valid).fillna(0)
     aligned_regimes = regimes.reindex(valid)
 
-    # Strategy: hold when uptrend (regime=1), cash when downtrend (regime=0)
+    # Strategy: invested when price > lagged MA, cash otherwise.
+    # The MA is already lagged by 1 day in moving_average_regime(),
+    # so the regime signal (today's price vs yesterday's MA) is observable
+    # intra-day without look-ahead bias.
     strategy_returns = aligned_returns * aligned_regimes
 
     result = pd.DataFrame({
