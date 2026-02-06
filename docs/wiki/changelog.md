@@ -57,7 +57,7 @@ All notable changes to the BlackSwans project are documented here. Follows seman
 - **Cache Validation:** Added date coverage checks to `fetch_price_data()`
 
 ### Testing
-- **Test Suite:** 66 tests across 6 modules (100% coverage on core analysis)
+- **Test Suite:** 68 tests across 6 modules (100% coverage on core analysis)
 - **Test Files:**
   - `tests/test_transforms.py` — Daily return computation
   - `tests/test_outliers.py` — Outlier identification & stats
@@ -111,6 +111,7 @@ All notable changes to the BlackSwans project are documented here. Follows seman
 3. **GET `/api/analysis/{ticker}`** — Run outlier analysis with optional parameters
    - Query params: `start`, `end`, `ma_window`, `quantiles`
 4. **GET `/api/validation/{ticker}`** — Run full 4-claim validation
+5. **GET `/api/chart-data/{ticker}`** — Chart-ready data for frontend visualizations
 
 ### API Features
 - FastAPI with automatic Swagger UI (`/docs`) and ReDoc (`/redoc`)
@@ -121,8 +122,8 @@ All notable changes to the BlackSwans project are documented here. Follows seman
 
 ### Configuration
 - `api/README.md` — Complete API documentation
-- `api/main.py` — FastAPI application (281 lines)
-- `api/models.py` — Pydantic response models (90 lines)
+- `api/main.py` — FastAPI application
+- `api/models.py` — Pydantic response models
 - `pyproject.toml` — Added `[api]` extra with FastAPI & uvicorn
 
 ### Running
@@ -159,7 +160,7 @@ uvicorn api.main:app --reload
 6. **ScenarioChart** — Impact visualization comparing scenarios (baseline, missing best 10 days, missing worst, missing both)
 
 ### API Integration
-- `services/api.js` — Axios-based API client with comprehensive mock data fallback
+- `services/api.js` — Uses browser fetch() API to load static JSON, with comprehensive mock data fallback
 - Mock data based on actual S&P 500 validation results
 - Graceful degradation when backend is unavailable
 - All data types match real API responses
@@ -236,10 +237,10 @@ npm run build     # Production build
 - **Version:** 0.2.0
 - **CLI:** `blackswans --ticker ^GSPC --start 1928-09-01 --end 2010-12-31 --output-dir output/`
 - **7 Core Modules** with clear separation of concerns
-- **66 Tests** with 100% coverage on analysis modules
+- **68 Tests** with 100% coverage on analysis modules
 
 ### Backend: FastAPI (`api/`)
-- **4 REST Endpoints** for analysis and validation
+- **5 REST Endpoints** for analysis and validation
 - **Pydantic Models** for type safety
 - **12 Tickers** with auto-parsed date ranges
 
@@ -250,7 +251,7 @@ npm run build     # Production build
 - **Built with Vite** for fast development
 
 ### Testing
-- **66 Tests** across 6 modules
+- **68 Tests** across 6 modules
 - **100% Coverage** on core analysis (`src/blackswans/analysis/`, `data/`)
 - **No API/Frontend Tests** yet
 
@@ -271,8 +272,8 @@ npm run build     # Production build
 
 ### v0.2.0 (2026-02-06) — Production Ready
 - All 4 Faber claims statistically validated
-- Package architecture complete with 66 tests
-- FastAPI backend with 4 endpoints
+- Package architecture complete with 68 tests
+- FastAPI backend with 5 endpoints
 - React dashboard with 6 components and 2 pages
 - Security fixes for path injection vulnerabilities
 - GitHub Actions CI/CD with automated wiki sync

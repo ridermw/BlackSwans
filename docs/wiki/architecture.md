@@ -21,14 +21,15 @@ The Black Swans project is a comprehensive financial analysis platform that vali
 │  ├─ Analysis Page (/analysis/:ticker)   │
 │  └─ 6 Components + Plotly Charts        │
 └────────────────┬────────────────────────┘
-                 │ HTTP (Axios)
+                 │ HTTP (fetch) / Static JSON
                  ↓
 ┌─────────────────────────────────────────┐
 │      FastAPI Backend (api/)             │
 │  ├─ /api/health — Health check          │
 │  ├─ /api/tickers — Available tickers    │
 │  ├─ /api/analysis/{ticker} — Run        │
-│  └─ /api/validation/{ticker} — Validate │
+│  ├─ /api/validation/{ticker} — Validate │
+│  └─ /api/chart-data/{ticker} — Charts   │
 └────────────────┬────────────────────────┘
                  │ Python imports
                  ↓
@@ -78,7 +79,7 @@ src/blackswans/
 ### Data Pipeline
 
 #### 1. Data Fetching & Caching (`data/loaders.py`)
-- **`fetch_price_data(ticker, start, end, csv=None, overwrite=False)`**
+- **`fetch_price_data(ticker, start, end, csv_path=None, overwrite=False)`**
   - Downloads daily OHLCV data from Yahoo Finance via yfinance
   - Caches locally in `data/` as CSV: `{ticker}_{start}_to_{end}.csv`
   - Validates cache date coverage; re-downloads if incomplete
@@ -87,7 +88,7 @@ src/blackswans/
   - Returns pandas DataFrame with Date index and Close column
 
 #### 2. Return Computation (`data/transforms.py`)
-- **`compute_daily_returns(prices, method='pct_change')`**
+- **`compute_daily_returns(prices)`**
   - Converts price series to daily percentage returns
   - Uses `pct_change(fill_method=None)` to avoid pandas deprecation warnings
   - Drops NaN values before analysis
@@ -97,7 +98,7 @@ src/blackswans/
 ### Analysis Functions
 
 #### Outlier Detection (`analysis/outliers.py`)
-- **`calculate_outlier_stats(returns, quantile=0.99)`**
+- **`calculate_outlier_stats(returns, quantile)`**
   - Identifies extreme returns in both tails using quantiles
   - Returns `OutlierStats` dataclass with comprehensive statistics
   - For quantile=0.99: identifies top 1% (high) and bottom 1% (low) returns
@@ -119,12 +120,12 @@ src/blackswans/
   - Used for all performance metrics
 
 #### Regime Classification (`analysis/regimes.py`)
-- **`moving_average_regime(prices, window=200)`**
+- **`moving_average_regime(prices, window)`**
   - Binary regime classification using simple moving average
   - Regime 0: Downtrend (price ≤ lagged MA)
   - Regime 1: Uptrend (price > lagged MA)
   - **Lagged MA:** Uses shift(1) to avoid look-ahead bias
-  - First `window-1` days marked as NaN (insufficient data)
+  - First `window` days marked as NaN (insufficient data)
   - Returns Series of 0s, 1s, and NaN values
 
 - **`regime_performance(returns, regimes)`**
@@ -132,25 +133,26 @@ src/blackswans/
   - Returns DataFrame with: count, pct_of_total, mean, median, std, annualised_return
   - Cash (0.0) applied on non-regime days for annualization
 
-- **`outlier_regime_counts(returns, regimes, quantile=0.99)`**
+- **`outlier_regime_counts(returns, regimes, quantile)`**
   - Counts outliers occurring in each regime
-  - Returns tuple: (downtrend_count, uptrend_count, total_count)
+  - Returns tuple: (downtrend_count, uptrend_count)
 
 #### Statistical Tests (`analysis/statistics.py`)
-- **`chi_square_regime_clustering(returns, regimes, quantile=0.99)`**
+- **`chi_square_regime_clustering(outlier_down, outlier_up, total_down, total_up)`**
   - Tests if outliers cluster disproportionately in one regime
-  - Uses chi-squared goodness-of-fit test
-  - Returns: chi2_stat, p_value, contingency table
+  - Takes outlier counts and total counts per regime
+  - Returns `StatTestResult`
 
-- **`two_proportion_z_test(prop1, n1, prop2, n2)`**
+- **`two_proportion_z_test(outlier_down, outlier_up, total_down, total_up)`**
   - Compares outlier rates between regimes
-  - Returns: z_statistic, p_value
+  - Takes outlier counts and total counts per regime
+  - Returns `StatTestResult`
 
 - **`normality_tests(returns)`**
   - Jarque-Bera test (omnibus)
   - Kolmogorov-Smirnov test
   - Shapiro-Wilk test
-  - Returns dict with all test statistics and p-values
+  - Returns dict mapping test name to `StatTestResult`
 
 - **`bootstrap_confidence_interval(data, statistic_fn, n_bootstrap=10000, ci=0.95)`**
   - Non-parametric confidence intervals for any statistic
@@ -167,7 +169,7 @@ src/blackswans/
 - **`skewness(returns)`**
 
 ### Validation (`validate_claims.py`)
-- **`validate_faber_claims(ticker, start, end, csv=None, output_dir='output/')`**
+- **`validate_faber_claims(ticker, start, end, csv_path=None, output_dir='output/')`**
   - Orchestrates all 4 claim validations with logging
   - Generates comprehensive validation report
   - Returns dict with all statistical test results
@@ -273,6 +275,7 @@ Provides REST API endpoints for programmatic access to analysis and validation f
 | `/api/tickers` | GET | List available tickers with date ranges and data file paths |
 | `/api/analysis/{ticker}` | GET | Run outlier analysis with optional parameters |
 | `/api/validation/{ticker}` | GET | Run full 4-claim validation |
+| `/api/chart-data/{ticker}` | GET | Chart-ready data for frontend visualizations |
 
 ### Analysis Endpoint Parameters
 - `start` (string, optional): Start date (YYYY-MM-DD), defaults to data file start
@@ -289,8 +292,8 @@ Provides REST API endpoints for programmatic access to analysis and validation f
 - `ValidationResponse` — Full 4-claim validation with verdicts
 
 ### Implementation
-- `api/main.py` (281 lines) — FastAPI app, endpoint handlers, error handling
-- `api/models.py` (90 lines) — Pydantic models for responses
+- `api/main.py` — FastAPI app, endpoint handlers, error handling
+- `api/models.py` — Pydantic models for responses
 - CORS enabled for development (all origins allowed)
 - Ticker mapping to `data/` CSV files with automatic date parsing
 - All endpoints call corresponding `blackswans` package functions
@@ -329,7 +332,7 @@ Interactive dashboard for exploring analysis results and validating Faber's clai
 - **Build Tool:** Vite (dev server + optimized production builds)
 - **Routing:** React Router v7
 - **Charts:** Plotly.js via react-plotly.js
-- **HTTP Client:** Axios
+- **HTTP Client:** Browser fetch() API
 - **CSS:** Custom stylesheets with financial theme
 
 ### Pages (2)
@@ -373,7 +376,7 @@ Interactive dashboard for exploring analysis results and validating Faber's clai
 - Daily returns colored by market regime
 - Green: Uptrend days (price > 200-day MA)
 - Red: Downtrend days (price ≤ 200-day MA)
-- Gray: Days before MA warmup (first 199 days)
+- Gray: Days before MA warmup (first 200 days)
 - Plotly scatter plot with color encoding
 
 #### 6. ScenarioChart (`ScenarioChart.jsx`)
@@ -388,7 +391,7 @@ Interactive dashboard for exploring analysis results and validating Faber's clai
 ### API Integration
 
 #### `services/api.js`
-- Axios-based HTTP client for backend calls
+- Uses browser fetch() API to load static JSON from `${BASE}/data/...`
 - Comprehensive mock data fallback for offline development
 - Mock data based on actual S&P 500 validation results
 - Graceful degradation: shows mock data if API unavailable
@@ -401,7 +404,7 @@ Route changes to /analysis/:ticker
     ↓
 Analysis component mounts, calls api.getAnalysis(ticker)
     ↓
-Axios requests http://localhost:8000/api/analysis/{ticker}
+fetch() loads static JSON from ${BASE}/data/{ticker}
     ↓
 FastAPI backend returns AnalysisResponse (JSON)
     ↓
@@ -434,7 +437,7 @@ frontend/
 │   │   └── ScenarioChart.jsx
 │   │
 │   ├── services/
-│   │   └── api.js          # Axios client + mock data
+│   │   └── api.js          # fetch() client + mock data
 │   │
 │   └── assets/             # Images, icons
 │
@@ -517,7 +520,7 @@ Route changes to /analysis/:ticker
     ↓
 Analysis page mounts
     ↓
-JavaScript fetch/axios to http://localhost:8000/api/analysis/sp500
+fetch() loads static JSON from ${BASE}/data/sp500
     ↓
 Charts render with API or mock data
     ↓
@@ -541,7 +544,7 @@ User interacts with Plotly charts (zoom, hover, etc.)
 ### Regime Classification
 - **Binary Classification:** 0 = downtrend, 1 = uptrend
 - **Lagged MA:** Today's price compared to yesterday's MA (shift by 1) to avoid look-ahead bias
-- **Warmup Period:** First `window-1` days marked as NaN (insufficient data for MA)
+- **Warmup Period:** First `window` days marked as NaN (insufficient data for MA)
 
 ### Quantile Logic
 - **Bidirectional:** Quantile Q identifies both tails
@@ -553,7 +556,7 @@ User interacts with Plotly charts (zoom, hover, etc.)
 
 ## Testing
 
-**Test Coverage:** 66 tests, 100% on core analysis modules
+**Test Coverage:** 68 tests, 100% on core analysis modules
 
 Test Modules:
 - `tests/test_transforms.py` — Return computation
