@@ -110,7 +110,13 @@ def fetch_price_data(
     data = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=False)
     if data.empty:
         raise ValueError(f"No data for {ticker} from {start} to {end}")
-    data = data.rename(columns={"Adj Close": "Close"})
+    # Flatten MultiIndex columns produced by newer yfinance versions
+    if isinstance(data.columns, pd.MultiIndex):
+        data = data.droplevel("Ticker", axis=1)
+        data.columns.name = None
+    # Use Adj Close as Close for dividend/split-adjusted prices
+    if "Adj Close" in data.columns:
+        data["Close"] = data["Adj Close"]
     data.index.name = "Date"
     data.to_csv(cache_path)
     return data[["Close"]]

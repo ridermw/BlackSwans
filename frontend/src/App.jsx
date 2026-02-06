@@ -34,7 +34,7 @@ function App() {
             Based on <em>"Where the Black Swans Hide & The 10 Best Days Myth"</em> by Mebane Faber (2011)
           </p>
           <p className="footer-note">
-            Statistical validation using S&P 500 data (1928-2010)
+            Statistical validation using S&P 500 data (1928-2025)
           </p>
         </footer>
       </div>

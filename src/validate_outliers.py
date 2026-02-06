@@ -5,7 +5,7 @@ now lives in the ``src/blackswans/`` package.
 
 Usage is unchanged::
 
-    python src/validate_outliers.py --ticker ^GSPC --start 1928-09-01 --end 2010-12-31
+    python src/validate_outliers.py --ticker ^GSPC --start 1928-09-04 --end 2025-01-31
 """
 
 # Re-export public names so existing imports continue to work.

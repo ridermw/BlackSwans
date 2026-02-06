@@ -29,18 +29,18 @@ logger = logging.getLogger(__name__)
 
 # Same mapping as api/main.py
 TICKER_MAP = {
-    "sp500": ("^GSPC", "_GSPC_1928-09-01_to_2010-12-31.csv"),
-    "nikkei": ("^N225", "_N225_1970-01-01_to_2010-12-31.csv"),
-    "ftse": ("^FTSE", "_FTSE_1970-01-01_to_2010-12-31.csv"),
-    "dax": ("^GDAXI", "_GDAXI_1970-01-01_to_2010-12-31.csv"),
-    "cac": ("^FCHI", "_FCHI_1970-01-01_to_2010-12-31.csv"),
-    "asx": ("^AXJO", "_AXJO_1970-01-01_to_2010-12-31.csv"),
-    "tsx": ("^GSPTSE", "_GSPTSE_1970-01-01_to_2010-12-31.csv"),
-    "hsi": ("^HSI", "_HSI_1970-01-01_to_2010-12-31.csv"),
-    "efa": ("EFA", "EFA_1970-01-01_to_2010-12-31.csv"),
-    "eem": ("EEM", "EEM_1988-01-01_to_2010-12-31.csv"),
-    "reit": ("VNQ", "VNQ_1970-01-01_to_2010-12-31.csv"),
-    "bonds": ("AGG", "AGG_1976-01-01_to_2010-12-31.csv"),
+    "sp500": ("^GSPC", "_GSPC_1928-09-04_to_2025-01-31.csv"),
+    "nikkei": ("^N225", "_N225_1970-01-05_to_2025-01-31.csv"),
+    "ftse": ("^FTSE", "_FTSE_1984-01-03_to_2025-01-31.csv"),
+    "dax": ("^GDAXI", "_GDAXI_1987-12-30_to_2025-01-31.csv"),
+    "cac": ("^FCHI", "_FCHI_1990-03-01_to_2025-01-31.csv"),
+    "asx": ("^AXJO", "_AXJO_1992-11-23_to_2025-01-31.csv"),
+    "tsx": ("^GSPTSE", "_GSPTSE_1979-06-29_to_2025-01-31.csv"),
+    "hsi": ("^HSI", "_HSI_1986-12-31_to_2025-01-28.csv"),
+    "efa": ("EFA", "EFA_2001-08-27_to_2025-01-31.csv"),
+    "eem": ("EEM", "EEM_2003-04-14_to_2025-01-31.csv"),
+    "reit": ("VNQ", "VNQ_2004-09-29_to_2025-01-31.csv"),
+    "bonds": ("AGG", "AGG_2003-09-29_to_2025-01-31.csv"),
 }
 
 ROOT = Path(__file__).resolve().parent.parent

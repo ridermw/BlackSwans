@@ -51,9 +51,9 @@ Returns all available tickers with their data files and date ranges.
     {
       "ticker_code": "sp500",
       "ticker_symbol": "^GSPC",
-      "data_file": "/path/to/data/_GSPC_1928-09-01_to_2010-12-31.csv",
-      "start_date": "1928-09-01",
-      "end_date": "2010-12-31"
+      "data_file": "/path/to/data/_GSPC_1928-09-04_to_2025-01-31.csv",
+      "start_date": "1928-09-04",
+      "end_date": "2025-01-31"
     }
   ]
 }
@@ -82,9 +82,9 @@ curl "http://localhost:8000/api/analysis/sp500?quantiles=0.99&ma_window=200"
 ```json
 {
   "ticker": "sp500",
-  "start_date": "1928-09-01",
-  "end_date": "2010-12-31",
-  "n_trading_days": 20673,
+  "start_date": "1928-09-04",
+  "end_date": "2025-01-31",
+  "n_trading_days": 24216,
   "outlier_stats": [...],
   "scenarios": [...],
   "regime_performance": [...]
@@ -112,8 +112,8 @@ curl "http://localhost:8000/api/validation/sp500"
 ```json
 {
   "ticker": "sp500",
-  "period": "1928-09-01 to 2010-12-31",
-  "n_trading_days": 20673,
+  "period": "1928-09-04 to 2025-01-31",
+  "n_trading_days": 24216,
   "claims": {
     "1_fat_tails": "CONFIRMED",
     "2_outsized_influence": "CONFIRMED",
