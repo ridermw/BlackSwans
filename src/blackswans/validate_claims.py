@@ -221,6 +221,7 @@ def run_full_validation(
         if ".." in parts:
             raise ValueError(f"Path traversal detected in output_dir: {output_dir}")
     out = out.resolve()
+    # codeql[py/path-injection] Safe: output_dir validated above for .. components in relative paths
     out.mkdir(parents=True, exist_ok=True)
 
     if prices_df is None:

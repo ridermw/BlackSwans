@@ -68,6 +68,7 @@ def fetch_price_data(
     cache_path = DATA_DIR / cache_file
 
     # Verify resolved path is within DATA_DIR to prevent path traversal
+    # codeql[py/path-injection] Safe: ticker sanitized to alphanumeric + ^-_ only, path validated below
     resolved_cache = cache_path.resolve()
     try:
         resolved_cache.relative_to(DATA_DIR.resolve())

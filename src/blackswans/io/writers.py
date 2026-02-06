@@ -14,5 +14,7 @@ def save_dataframe(df: pd.DataFrame, path: Path) -> None:
             raise ValueError(f"Path traversal detected: {path}")
 
     resolved_path = path.resolve()
+    # codeql[py/path-injection] Safe: path validated above for .. components in relative paths
     resolved_path.parent.mkdir(parents=True, exist_ok=True)
+    # codeql[py/path-injection] Safe: path validated above for .. components in relative paths
     df.to_csv(resolved_path)
