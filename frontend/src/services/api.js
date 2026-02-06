@@ -1,19 +1,14 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:8000/api';
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 30000,
-});
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 /**
- * Fetch list of available tickers from backend.
+ * Fetch list of available tickers.
  * Returns array of { ticker_code, ticker_symbol, start_date, end_date }.
  */
 export async function fetchTickers() {
-  const response = await api.get('/tickers');
-  return response.data.tickers;
+  const response = await fetch(`${BASE}/data/tickers.json`);
+  if (!response.ok) throw new Error(`Failed to fetch tickers: ${response.status}`);
+  const data = await response.json();
+  return data.tickers;
 }
 
 /**
@@ -21,8 +16,9 @@ export async function fetchTickers() {
  * Returns claims array shaped for ClaimCard component.
  */
 export async function fetchClaims(ticker = 'sp500') {
-  const response = await api.get(`/validation/${ticker}`);
-  const data = response.data;
+  const response = await fetch(`${BASE}/data/${ticker}/validation.json`);
+  if (!response.ok) throw new Error(`Failed to fetch claims for ${ticker}: ${response.status}`);
+  const data = await response.json();
 
   // Transform backend ValidationResponse into frontend claim cards
   const claimMeta = [
@@ -82,14 +78,16 @@ export async function fetchClaims(ticker = 'sp500') {
  * Returns { returns, histogram, scenario_impacts }.
  */
 export async function fetchChartData(ticker = 'sp500') {
-  const response = await api.get(`/chart-data/${ticker}`);
-  return response.data;
+  const response = await fetch(`${BASE}/data/${ticker}/chart-data.json`);
+  if (!response.ok) throw new Error(`Failed to fetch chart data for ${ticker}: ${response.status}`);
+  return response.json();
 }
 
 /**
  * Fetch analysis results (outlier stats, scenarios, regime performance).
  */
 export async function fetchAnalysis(ticker = 'sp500') {
-  const response = await api.get(`/analysis/${ticker}`);
-  return response.data;
+  const response = await fetch(`${BASE}/data/${ticker}/analysis.json`);
+  if (!response.ok) throw new Error(`Failed to fetch analysis for ${ticker}: ${response.status}`);
+  return response.json();
 }

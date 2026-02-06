@@ -147,4 +147,4 @@ Test files mirror the package structure:
 
 - `docs/validation_report.md` — Full statistical validation of Faber's 4 claims
 - `docs/audit_report.md` — Code and methodology audit findings
-- `docs/wiki/` — Architecture, data dictionary, analysis methods, changelog
+- `docs/wiki/` — Architecture, data dictionary, analysis methods, changelog (auto-synced to [GitHub Wiki](https://github.com/ridermw/BlackSwans/wiki))
