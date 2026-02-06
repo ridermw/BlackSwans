@@ -85,7 +85,7 @@ BlackSwans/
 ├── docs/
 │   ├── audit_report.md          # M0 code & methodology audit
 │   ├── validation_report.md     # Full statistical validation
-│   └── wiki/                    # Project documentation
+│   └── wiki/                    # Project documentation (synced to GitHub Wiki)
 └── pyproject.toml               # Package config
 ```
 

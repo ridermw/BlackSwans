@@ -1,0 +1,74 @@
+name: Sync docs/wiki to GitHub Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/wiki/**'
+  workflow_dispatch:
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Clone wiki repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIKI_URL: "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git"
+        run: |
+          git clone "$WIKI_URL" wiki-repo
+
+      - name: Sync wiki content
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          # Clear existing wiki content
+          rm -f wiki-repo/*.md
+
+          # Copy docs/wiki files with filename transformation
+          cp docs/wiki/architecture.md      wiki-repo/Architecture.md
+          cp docs/wiki/data_dictionary.md   wiki-repo/Data-Dictionary.md
+          cp docs/wiki/analysis_methods.md  wiki-repo/Analysis-Methods.md
+          cp docs/wiki/changelog.md         wiki-repo/Changelog.md
+
+          # Generate Home.md landing page
+          cat > wiki-repo/Home.md << EOF
+# BlackSwans Wiki
+
+Validating and extending the analysis from **"Where the Black Swans Hide & The 10 Best Days Myth"** by Mebane Faber (2011).
+
+| Page | Description |
+|------|-------------|
+| [Architecture](Architecture) | Package structure, data pipeline, and module design |
+| [Data Dictionary](Data-Dictionary) | Data sources, schemas, and field definitions |
+| [Analysis Methods](Analysis-Methods) | Statistical tests and analytical methodology |
+| [Changelog](Changelog) | Version history and notable changes |
+
+---
+*This wiki is auto-generated from [\`docs/wiki/\`](https://github.com/${REPO}/tree/main/docs/wiki). Edit the source files there, not here.*
+EOF
+
+      - name: Commit and push changes
+        working-directory: wiki-repo
+        env:
+          SHORT_SHA: ${{ github.sha }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No wiki changes to commit"
+          else
+            git commit -m "Sync wiki from docs/wiki/ (${SHORT_SHA::7})"
+            git push
+          fi
