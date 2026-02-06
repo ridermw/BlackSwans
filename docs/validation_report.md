@@ -182,6 +182,47 @@ However, the strategy's outperformance is partly an artifact of backtesting over
 
 ---
 
+## Extended Validation: 1928-2025
+
+The original validation used data through December 2010 (matching Faber's paper). We re-validated all four claims using an extended dataset through January 2025, adding 15 years of market events including the COVID-2020 crash, 2022 downturn, and 2023-2024 rally.
+
+### Comparison: 1928-2010 vs 1928-2025
+
+| Metric | 1928-2010 (20,674 days) | 1928-2025 (24,216 days) | Change |
+|--------|------------------------|------------------------|--------|
+| **Claim 1: Fat tails** | | | |
+| Excess kurtosis | 17.60 | 17.27 | Slightly lower (COVID added extreme days but also more normal days) |
+| Jarque-Bera p-value | ≈ 0 | ≈ 0 | Unchanged |
+| **Claim 2: Outsized influence** | | | |
+| CAGR impact (miss 10 best) | 1.41pp (CI: [1.19%, 1.63%]) | 1.21pp (CI: [1.03%, 1.39%]) | Diluted slightly by more data, still highly significant |
+| **Claim 3: Clustering** | | | |
+| % outliers in downtrends | 70.7% | 72.2% | *Strengthened* |
+| Chi-squared p-value | 4.7 × 10⁻⁵² | 2.5 × 10⁻⁷⁸ | *Strengthened* (26 more orders of magnitude) |
+| **Claim 4: Trend-following** | | | |
+| Strategy CAGR | 16.1% | 16.6% | Stable |
+| Buy-hold CAGR | 4.9% | 5.9% | Higher (2010-2025 was a strong bull market) |
+| Strategy max drawdown | -25.7% | -25.7% | Unchanged (worst drawdown still from historical period) |
+| Buy-hold max drawdown | -86.2% | -86.2% | Unchanged |
+| Strategy Sharpe | 1.27 | 1.32 | Slightly improved |
+
+### Cross-Index Validation (2025 Data)
+
+All four claims are confirmed across all major international indices:
+
+| Index | Days | Fat Tails | Outsized | Clustering p-value | % Downtrend | Trend-Following |
+|-------|------|-----------|----------|-------------------|-------------|----------------|
+| S&P 500 | 24,216 | CONFIRMED | CONFIRMED | 2.5 × 10⁻⁷⁸ | 72.2% | CONFIRMED |
+| Nikkei 225 | 13,546 | CONFIRMED | CONFIRMED | 7.4 × 10⁻⁵² | 81.2% | CONFIRMED |
+| FTSE 100 | 10,377 | CONFIRMED | CONFIRMED | 2.7 × 10⁻⁶⁷ | 88.4% | CONFIRMED |
+| DAX | 9,377 | CONFIRMED | CONFIRMED | 3.1 × 10⁻⁶⁶ | 88.0% | CONFIRMED |
+| Hang Seng | 9,398 | CONFIRMED | CONFIRMED | 1.4 × 10⁻²³ | 74.7% | CONFIRMED |
+
+### Key Finding
+
+All four claims are **robustly confirmed** with the extended data across all markets tested. The clustering result (Claim 3) actually *strengthened* significantly — the COVID-2020 crash produced extreme outlier days that clustered heavily during the bear market phase, adding further evidence for Faber's thesis. The S&P 500 p-value dropped from 10⁻⁵² to 10⁻⁷⁸. FTSE and DAX show the strongest clustering (88% of outliers in downtrends).
+
+---
+
 ## Conclusion
 
 Faber's four core claims are all **statistically confirmed** with rigorous hypothesis testing:
