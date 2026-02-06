@@ -6,6 +6,8 @@ from typing import Optional
 
 import pandas as pd
 
+from ..sanitize import sanitize_ticker
+
 try:
     import yfinance as yf
 except ImportError:
@@ -61,10 +63,23 @@ def fetch_price_data(
     range, use it; otherwise download via yfinance and cache.
     """
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    cache_file = f"{ticker.replace('^', '_')}_{start}_to_{end}.csv"
-    cache_path = DATA_DIR / cache_file
 
-    # explicit CSV override
+    safe_ticker = sanitize_ticker(ticker)
+    cache_file = f"{safe_ticker.replace('^', '_')}_{start}_to_{end}.csv"
+    cache_path = (DATA_DIR / cache_file).resolve()
+
+    # Validate resolved cache path stays within DATA_DIR
+    resolved_data_dir = DATA_DIR.resolve()
+    try:
+        cache_path.relative_to(resolved_data_dir)
+    except ValueError:
+        raise ValueError(
+            f"Invalid ticker results in path outside data directory: {ticker}"
+        )
+    # codeql[py/path-injection] — ticker is sanitized by sanitize_ticker()
+    # and the resolved path is validated to stay within DATA_DIR above.
+
+    # explicit CSV override (user-provided path, no directory restriction)
     if csv_path:
         csv_file = Path(csv_path)
         if csv_file.exists():

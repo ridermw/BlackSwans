@@ -11,6 +11,7 @@ import numpy as np
 
 from blackswans.data.loaders import load_price_csv
 from blackswans.data.transforms import compute_daily_returns
+from blackswans.sanitize import sanitize_ticker
 from blackswans.analysis.outliers import calculate_outlier_stats
 from blackswans.analysis.scenarios import scenario_returns, annualised_return
 from blackswans.analysis.regimes import (
@@ -241,12 +242,14 @@ async def run_validation(
         # Pre-load data from validated path, then pass DataFrame directly
         prices_df = load_price_csv(Path(ticker_info.data_file), start, end)
 
+        safe_ticker = sanitize_ticker(ticker)
+
         summary = run_full_validation(
             csv_path=ticker_info.data_file,
             ticker=ticker_info.ticker_symbol,
             start=start,
             end=end,
-            output_dir=f"output/api_validation_{ticker}",
+            output_dir=f"output/api_validation_{safe_ticker}",
             prices_df=prices_df,
         )
 

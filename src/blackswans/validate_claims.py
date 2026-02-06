@@ -213,6 +213,9 @@ def run_full_validation(
 
     If *prices_df* is supplied it is used directly, skipping file I/O.
     """
+    # codeql[py/path-injection] — output_dir is either a hardcoded default,
+    # a CLI argument from the local user, or sanitised by the API layer
+    # before reaching this function.
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
 
