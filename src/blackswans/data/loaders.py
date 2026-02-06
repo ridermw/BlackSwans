@@ -32,6 +32,22 @@ def _load_csv(path: Path) -> pd.DataFrame:
     return df.sort_index()
 
 
+def load_price_csv(csv_path: Path, start: str, end: str) -> pd.DataFrame:
+    """Load price data from a known CSV file path.
+
+    This function is intended for use when the caller has already validated
+    the path (e.g. from a hardcoded mapping). It does no caching or
+    downloading.
+    """
+    df = _load_csv(csv_path)
+    if "Close" not in df.columns and "Adj Close" in df.columns:
+        df["Close"] = df["Adj Close"]
+    df["Close"] = pd.to_numeric(df["Close"], errors="coerce")
+    df = df.sort_index().loc[start:end, ["Close"]]
+    df.dropna(subset=["Close"], inplace=True)
+    return df
+
+
 def fetch_price_data(
     ticker: str,
     start: str,
@@ -48,27 +64,18 @@ def fetch_price_data(
     cache_file = f"{ticker.replace('^', '_')}_{start}_to_{end}.csv"
     cache_path = DATA_DIR / cache_file
 
-    def _from_csv(path: Path) -> pd.DataFrame:
-        df = _load_csv(path)
-        if "Close" not in df.columns and "Adj Close" in df.columns:
-            df["Close"] = df["Adj Close"]
-        df["Close"] = pd.to_numeric(df["Close"], errors="coerce")
-        df = df.sort_index().loc[start:end, ["Close"]]
-        df.dropna(subset=["Close"], inplace=True)
-        return df
-
     # explicit CSV override
     if csv_path:
         csv_file = Path(csv_path)
         if csv_file.exists():
             logging.info(f"Loading prices from {csv_file}")
-            return _from_csv(csv_file)
+            return load_price_csv(csv_file, start, end)
         else:
             logging.warning(f"CSV path {csv_file} not found, proceeding to cache or download.")
 
     # load from cache
     if cache_path.exists() and not overwrite:
-        df = _from_csv(cache_path)
+        df = load_price_csv(cache_path, start, end)
         if not df.empty:
             actual_start = df.index.min().strftime("%Y-%m-%d")
             actual_end = df.index.max().strftime("%Y-%m-%d")

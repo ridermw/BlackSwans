@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import numpy as np
 
-from blackswans.data.loaders import fetch_price_data
+from blackswans.data.loaders import load_price_csv
 from blackswans.data.transforms import compute_daily_returns
 from blackswans.analysis.outliers import calculate_outlier_stats
 from blackswans.analysis.scenarios import scenario_returns, annualised_return
@@ -29,6 +29,9 @@ from .models import (
     AnalysisResponse,
     ValidationResponse,
     ClaimVerdict,
+    ChartDataResponse,
+    ReturnDataPoint,
+    HistogramBin,
     ErrorResponse,
 )
 
@@ -78,12 +81,19 @@ def get_ticker_info(ticker_code: str) -> TickerInfo:
         )
 
     symbol, filename = TICKER_MAP[ticker_code]
-    filepath = DATA_DIR / filename
+    filepath = (DATA_DIR / filename).resolve()
+
+    # Validate the resolved path stays within the data directory
+    if not str(filepath).startswith(str(DATA_DIR.resolve())):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid data file path",
+        )
 
     if not filepath.exists():
         raise HTTPException(
             status_code=404,
-            detail=f"Data file not found: {filepath}",
+            detail=f"Data file not found for ticker '{ticker_code}'",
         )
 
     # Parse dates from filename
@@ -133,8 +143,6 @@ async def run_analysis(
     try:
         # Get ticker info and data file
         ticker_info = get_ticker_info(ticker)
-        csv_path = ticker_info.data_file
-        symbol = ticker_info.ticker_symbol
 
         # Use file's date range if not provided
         if start is None:
@@ -145,8 +153,8 @@ async def run_analysis(
         # Parse quantiles
         quantile_list = [float(q.strip()) for q in quantiles.split(",")]
 
-        logger.info(f"Loading data for {ticker} ({symbol}): {start} to {end}")
-        prices_df = fetch_price_data(symbol, start, end, csv_path=csv_path)
+        logger.info(f"Loading data for {ticker} ({ticker_info.ticker_symbol}): {start} to {end}")
+        prices_df = load_price_csv(Path(ticker_info.data_file), start, end)
         prices = prices_df["Close"]
         returns = compute_daily_returns(prices)
 
@@ -221,8 +229,6 @@ async def run_validation(
     try:
         # Get ticker info and data file
         ticker_info = get_ticker_info(ticker)
-        csv_path = ticker_info.data_file
-        symbol = ticker_info.ticker_symbol
 
         # Use file's date range if not provided
         if start is None:
@@ -230,15 +236,18 @@ async def run_validation(
         if end is None:
             end = ticker_info.end_date
 
-        logger.info(f"Running validation for {ticker} ({symbol}): {start} to {end}")
+        logger.info(f"Running validation for {ticker} ({ticker_info.ticker_symbol}): {start} to {end}")
 
-        # Run full validation (creates output directory but we ignore it)
+        # Pre-load data from validated path, then pass DataFrame directly
+        prices_df = load_price_csv(Path(ticker_info.data_file), start, end)
+
         summary = run_full_validation(
-            csv_path=csv_path,
-            ticker=symbol,
+            csv_path=ticker_info.data_file,
+            ticker=ticker_info.ticker_symbol,
             start=start,
             end=end,
             output_dir=f"output/api_validation_{ticker}",
+            prices_df=prices_df,
         )
 
         # Format claim details
@@ -273,6 +282,101 @@ async def run_validation(
         raise
     except Exception as e:
         logger.error(f"Validation failed for {ticker}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/chart-data/{ticker}", response_model=ChartDataResponse)
+async def get_chart_data(
+    ticker: str,
+    start: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    ma_window: int = Query(200, ge=10, le=500, description="Moving average window"),
+    quantile: float = Query(0.99, ge=0.9, le=0.9999, description="Outlier quantile threshold"),
+):
+    """Return chart-ready data: daily returns with outlier flags and regime labels."""
+    try:
+        ticker_info = get_ticker_info(ticker)
+
+        if start is None:
+            start = ticker_info.start_date
+        if end is None:
+            end = ticker_info.end_date
+
+        prices_df = load_price_csv(Path(ticker_info.data_file), start, end)
+        prices = prices_df["Close"]
+        returns = compute_daily_returns(prices)
+
+        # Outlier thresholds
+        threshold_low = float(returns.quantile(1 - quantile))
+        threshold_high = float(returns.quantile(quantile))
+
+        # Regime classification
+        regimes = moving_average_regime(prices, ma_window)
+
+        # Build per-day data, downsampled for performance.
+        # Always include outlier days so they're visible in charts.
+        outlier_mask = (returns <= threshold_low) | (returns >= threshold_high)
+        outlier_indices = returns.index[outlier_mask]
+        regular_indices = returns.index[~outlier_mask]
+        step = max(1, len(regular_indices) // 4500)
+        sampled_regular = regular_indices[::step]
+        sampled_idx = outlier_indices.union(sampled_regular).sort_values()
+
+        data_points = []
+        for dt in sampled_idx:
+            r = float(returns.loc[dt])
+            is_outlier = r <= threshold_low or r >= threshold_high
+            regime_val = None
+            if dt in regimes.index and not pd.isna(regimes.loc[dt]):
+                regime_val = int(regimes.loc[dt])
+            data_points.append(ReturnDataPoint(
+                date=dt.strftime("%Y-%m-%d"),
+                ret=r,
+                is_outlier=is_outlier,
+                regime=regime_val,
+            ))
+
+        # Histogram data
+        clean = returns.dropna()
+        histogram = []
+        if len(clean) > 1:
+            mu = float(clean.mean() * 100)
+            sigma = float(clean.std() * 100)
+            if sigma > 0:
+                counts, bin_edges = np.histogram(clean * 100, bins=80)
+                bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+                bin_width = float(bin_edges[1] - bin_edges[0])
+                normal_expected = [
+                    float(len(clean) * bin_width * np.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * np.sqrt(2 * np.pi)))
+                    for x in bin_centers
+                ]
+                histogram = [
+                    HistogramBin(bin_center=float(bc), count=int(c), normal_expected=float(ne))
+                    for bc, c, ne in zip(bin_centers, counts, normal_expected)
+                ]
+
+        # Scenario impacts for multiple N values
+        baseline_cagr = annualised_return(returns)
+        scenario_impacts = {}
+        for n_days in [5, 10, 20, 50]:
+            _, miss_best, _, _ = scenario_returns(returns, n_days, n_days)
+            impact = baseline_cagr - annualised_return(miss_best)
+            scenario_impacts[str(n_days)] = float(impact * 100)  # as percentage points
+
+        return ChartDataResponse(
+            ticker=ticker,
+            start_date=start,
+            end_date=end,
+            n_trading_days=len(returns),
+            returns=data_points,
+            histogram=histogram,
+            scenario_impacts=scenario_impacts,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Chart data failed for {ticker}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
