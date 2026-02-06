@@ -47,21 +47,21 @@ jobs:
           done
 
           # Generate Home.md landing page
-          cat > wiki-repo/Home.md << EOF
-# BlackSwans Wiki
-
-Validating and extending the analysis from **"Where the Black Swans Hide & The 10 Best Days Myth"** by Mebane Faber (2011).
-
-| Page | Description |
-|------|-------------|
-| [Architecture](Architecture) | Package structure, data pipeline, and module design |
-| [Data Dictionary](Data-Dictionary) | Data sources, schemas, and field definitions |
-| [Analysis Methods](Analysis-Methods) | Statistical tests and analytical methodology |
-| [Changelog](Changelog) | Version history and notable changes |
-
----
-*This wiki is auto-generated from [\`docs/wiki/\`](https://github.com/${REPO}/tree/main/docs/wiki). Edit the source files there, not here.*
-EOF
+          {
+            echo "# BlackSwans Wiki"
+            echo ""
+            echo "Validating and extending the analysis from **\"Where the Black Swans Hide & The 10 Best Days Myth\"** by Mebane Faber (2011)."
+            echo ""
+            echo "| Page | Description |"
+            echo "|------|-------------|"
+            echo "| [Architecture](Architecture) | Package structure, data pipeline, and module design |"
+            echo "| [Data Dictionary](Data-Dictionary) | Data sources, schemas, and field definitions |"
+            echo "| [Analysis Methods](Analysis-Methods) | Statistical tests and analytical methodology |"
+            echo "| [Changelog](Changelog) | Version history and notable changes |"
+            echo ""
+            echo "---"
+            echo "*This wiki is auto-generated from [\`docs/wiki/\`](https://github.com/${REPO}/tree/main/docs/wiki). Edit the source files there, not here.*"
+          } > wiki-repo/Home.md
 
       - name: Commit and push changes
         working-directory: wiki-repo
