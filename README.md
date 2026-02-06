@@ -1,71 +1,25 @@
 # Black Swans Validation
 
-![Python](https://img.shields.io/badge/python-3.8%2B-blue)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+![Tests](https://img.shields.io/badge/tests-66%20passing-green)
 ![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue)
 
 > Validate and extend the analysis from **"Where the Black Swans Hide & The 10 Best Days Myth"** by Faber & CQR (Aug 2011).
 
 Repository: [https://github.com/ridermw/BlackSwans](https://github.com/ridermw/BlackSwans)
 
-## Table of Contents
+## Key Findings
 
-* [Overview](#overview)
-* [Features](#features)
-* [Requirements](#requirements)
-* [Installation](#installation)
-* [Usage](#usage)
-* [Validation Plan](#validation-plan)
-* [Extending to Present Day](#extending-to-present-day)
-* [Investment Insights](#investment-insights)
-* [Contributing](#contributing)
-* [License](#license)
-* [Contact](#contact)
+All four core claims from Faber's 2011 paper are **statistically confirmed**:
 
----
+| Claim | Verdict | Key Evidence |
+|-------|---------|-------------|
+| Market returns are fat-tailed | **CONFIRMED** | Excess kurtosis = 17.6, Jarque-Bera p ≈ 0 |
+| Extreme days have outsized influence | **CONFIRMED** | Missing 10 days: -1.4% CAGR (95% CI: [1.2%, 1.6%]) |
+| Outliers cluster in bear markets | **CONFIRMED** | 70.7% in downtrends, p ≈ 10⁻⁵², robust across 12 parameter combos |
+| Trend-following reduces worst volatility | **CONFIRMED** | Max drawdown: -26% (strategy) vs -86% (buy-hold) |
 
-## Overview
-
-This project:
-
-1. Summarizes the key claims of the 2011 white paper on fat-tailed market returns, outliers, and the "10 Best Days" myth.
-2. Implements a Python-based validation of those claims using historical market data.
-3. Extends the analysis through July 27, 2025 (e.g., COVID-19 crash, 2022 downturn).
-4. Extracts actionable investment insights (trend-following, tail-risk hedging, dynamic allocation).
-
-Original paper: [SSRN 1908469](https://ssrn.com/abstract=1908469)
-
----
-
-## Features
-
-* Download S\&P 500 (and other indices) daily returns via `yfinance`.
-* Identify top/bottom quantile outliers (e.g., 1%, 0.1%).
-* Classify market regime using 200-day moving average.
-* Compute scenario returns:
-
-  * Buy-and-hold
-  * Exclude best days
-  * Exclude worst days
-  * Exclude both best & worst
-* Perform clustering analysis and statistical significance tests.
-* Generate tables and charts for each step.
-
----
-
-## Requirements
-
-* Python 3.8 or higher
-* pandas
-* numpy
-* yfinance
-* matplotlib
-* scipy
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
+See [docs/validation_report.md](docs/validation_report.md) for the full report with statistical evidence.
 
 ---
 
@@ -74,81 +28,91 @@ pip install -r requirements.txt
 ```bash
 git clone https://github.com/ridermw/BlackSwans.git
 cd BlackSwans
-pip install -r requirements.txt
+pip install -e ".[dev]"
 ```
-
----
 
 ## Usage
 
-Run the main validation script with date range parameters:
+### Run the analysis
 
 ```bash
-python validate_outliers.py \
-  --ticker ^GSPC \
-  --start 1928-09-01 \
-  --end 2025-07-27 \
-  --quantiles 0.99 0.01 \
-  --ma-window 200
+# Using the package CLI
+blackswans --ticker ^GSPC --start 1928-09-01 --end 2010-12-31 \
+  --csv data/_GSPC_1928-09-01_to_2010-12-31.csv --output-dir output/sp500
+
+# Or using the legacy script
+python src/validate_outliers.py --ticker ^GSPC --start 1928-09-01 --end 2010-12-31
 ```
 
-Outputs are saved in `/output`:
+### Run the full validation (all 4 claims)
 
-* `summary.csv`
-* `clustering_stats.csv`
-* `return_scenarios.csv`
-* charts (`.png`)
+```bash
+python -m blackswans.validate_claims \
+  --csv data/_GSPC_1928-09-01_to_2010-12-31.csv \
+  --ticker ^GSPC --start 1928-09-01 --end 2010-12-31 \
+  --output-dir output/validation
+```
 
----
+### Run tests
 
-## Validation Plan
+```bash
+pytest tests/ -v
+```
 
-1. **Data Collection**: Download daily closes & compute returns.
-2. **Outlier Identification**: Flag best/worst days via quantiles.
-3. **Trend Classification**: 200-day MA to label up/down regimes.
-4. **Scenario Analysis**: Calculate returns for each scenario.
-5. **Clustering Analysis**: Test whether outliers cluster in downtrends.
-6. **Statistical Testing**: Apply chi-square or two-proportion z-tests.
+## Project Structure
 
----
+```
+BlackSwans/
+├── src/
+│   ├── blackswans/              # Main package
+│   │   ├── analysis/
+│   │   │   ├── outliers.py      # Outlier identification & stats
+│   │   │   ├── scenarios.py     # Scenario returns (miss best/worst days)
+│   │   │   ├── regimes.py       # MA regime classification & performance
+│   │   │   └── statistics.py    # Statistical tests (chi-sq, KS, bootstrap)
+│   │   ├── data/
+│   │   │   ├── loaders.py       # Data loading & caching
+│   │   │   └── transforms.py    # Daily return computation
+│   │   ├── visualization/
+│   │   │   └── plots.py         # Matplotlib chart generation
+│   │   ├── io/writers.py        # CSV output
+│   │   ├── cli.py               # CLI entry point
+│   │   └── validate_claims.py   # Full 4-claim validation
+│   └── validate_outliers.py     # Legacy wrapper
+├── tests/                       # 66 tests (pytest)
+├── data/                        # 12 index CSV files (1928-2010)
+├── output/                      # Analysis results
+├── docs/
+│   ├── audit_report.md          # M0 code & methodology audit
+│   ├── validation_report.md     # Full statistical validation
+│   └── wiki/                    # Project documentation
+└── pyproject.toml               # Package config
+```
 
-## Extending to Present Day
+## Data
 
-To update:
+12 market indices analyzed:
 
-1. Change `--end` parameter to the latest date.
-2. Re-run `validate_outliers.py`.
-3. Compare pre-2011 vs. post-2011 metrics.
-4. Analyze recent crisis periods (2020, 2022).
+| Index | Ticker | Period | File |
+|-------|--------|--------|------|
+| S&P 500 | ^GSPC | 1928-2010 | `_GSPC_1928-09-01_to_2010-12-31.csv` |
+| FTSE 100 | ^FTSE | 1970-2010 | `_FTSE_1970-01-01_to_2010-12-31.csv` |
+| DAX | ^GDAXI | 1970-2010 | `_GDAXI_1970-01-01_to_2010-12-31.csv` |
+| Nikkei 225 | ^N225 | 1970-2010 | `_N225_1970-01-01_to_2010-12-31.csv` |
+| Hang Seng | ^HSI | 1970-2010 | `_HSI_1970-01-01_to_2010-12-31.csv` |
+| ASX 200 | ^AXJO | 1970-2010 | `_AXJO_1970-01-01_to_2010-12-31.csv` |
+| CAC 40 | ^FCHI | 1970-2010 | `_FCHI_1970-01-01_to_2010-12-31.csv` |
+| TSX | ^GSPTSE | 1970-2010 | `_GSPTSE_1970-01-01_to_2010-12-31.csv` |
+| MSCI EAFE | EFA | 1970-2010 | `EFA_1970-01-01_to_2010-12-31.csv` |
+| MSCI EM | EEM | 1988-2010 | `EEM_1988-01-01_to_2010-12-31.csv` |
+| REITs | VNQ | 1970-2010 | `VNQ_1970-01-01_to_2010-12-31.csv` |
+| US Bonds | AGG | 1976-2010 | `AGG_1976-01-01_to_2010-12-31.csv` |
 
----
-
-## Investment Insights
-
-* **Trend-Following**: Rotate out when price < MA.
-* **Tail-Risk Hedging**: Use options or structured products in volatile regimes.
-* **Dynamic Allocation**: Weight by regime-based volatility.
-* **Behavioral Rules**: Automate to avoid emotional trading.
-
----
-
-## Contributing
-
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/XYZ`).
-3. Commit your changes (`git commit -m 'Add XYZ'`).
-4. Push to the branch (`git push origin feature/XYZ`).
-5. Open a Pull Request.
-
-Please follow the [code style guidelines](CONTRIBUTING.md).
-
----
+Original paper: [SSRN 1908469](https://ssrn.com/abstract=1908469)
 
 ## License
 
-This project is licensed under the **GNU Affero General Public License v3.0**. See [LICENSE](LICENSE) for details.
-
----
+GNU Affero General Public License v3.0. See [LICENSE](LICENSE).
 
 ## Contact
 
