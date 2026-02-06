@@ -213,7 +213,14 @@ def run_full_validation(
 
     If *prices_df* is supplied it is used directly, skipping file I/O.
     """
-    out = Path(output_dir)
+    out = Path(output_dir).resolve()
+    cwd = Path.cwd().resolve()
+    try:
+        out.relative_to(cwd)
+    except ValueError:
+        raise ValueError(
+            f"output_dir must be within the working directory: {output_dir}"
+        )
     out.mkdir(parents=True, exist_ok=True)
 
     if prices_df is None:
