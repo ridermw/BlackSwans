@@ -213,15 +213,7 @@ def run_full_validation(
 
     If *prices_df* is supplied it is used directly, skipping file I/O.
     """
-    # Resolve path and validate no path traversal in relative paths
     out = Path(output_dir)
-    if not out.is_absolute():
-        # For relative paths, verify they don't contain .. components
-        parts = Path(output_dir).parts
-        if ".." in parts:
-            raise ValueError(f"Path traversal detected in output_dir: {output_dir}")
-    out = out.resolve()
-    # codeql[py/path-injection] Safe: output_dir validated above for .. components in relative paths
     out.mkdir(parents=True, exist_ok=True)
 
     if prices_df is None:

@@ -61,19 +61,8 @@ def fetch_price_data(
     range, use it; otherwise download via yfinance and cache.
     """
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Sanitize ticker symbol for filesystem safety - only allow alphanumeric, ^, -, _
-    safe_ticker = "".join(c if c.isalnum() or c in "^-_" else "_" for c in ticker)
-    cache_file = f"{safe_ticker.replace('^', '_')}_{start}_to_{end}.csv"
+    cache_file = f"{ticker.replace('^', '_')}_{start}_to_{end}.csv"
     cache_path = DATA_DIR / cache_file
-
-    # Verify resolved path is within DATA_DIR to prevent path traversal
-    # codeql[py/path-injection] Safe: ticker sanitized to alphanumeric + ^-_ only, path validated below
-    resolved_cache = cache_path.resolve()
-    try:
-        resolved_cache.relative_to(DATA_DIR.resolve())
-    except ValueError:
-        raise ValueError(f"Invalid ticker symbol results in path outside data directory: {ticker}")
 
     # explicit CSV override
     if csv_path:

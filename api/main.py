@@ -241,15 +241,12 @@ async def run_validation(
         # Pre-load data from validated path, then pass DataFrame directly
         prices_df = load_price_csv(Path(ticker_info.data_file), start, end)
 
-        # Sanitize ticker for filesystem safety
-        safe_ticker = "".join(c if c.isalnum() or c == "_" else "_" for c in ticker)
-
         summary = run_full_validation(
             csv_path=ticker_info.data_file,
             ticker=ticker_info.ticker_symbol,
             start=start,
             end=end,
-            output_dir=f"output/api_validation_{safe_ticker}",
+            output_dir=f"output/api_validation_{ticker}",
             prices_df=prices_df,
         )
 
