@@ -12,7 +12,7 @@ const Overview = () => {
     const loadClaims = async () => {
       try {
         setLoading(true);
-        const data = await fetchClaims();
+        const data = await fetchClaims('sp500');
         setClaims(data);
       } catch (err) {
         setError(err.message);
@@ -29,7 +29,7 @@ const Overview = () => {
   }
 
   if (error) {
-    return <div className="error">Error: {error}</div>;
+    return <div className="error">Error loading data. Is the API server running? ({error})</div>;
   }
 
   return (
@@ -60,10 +60,10 @@ const Overview = () => {
           <li><strong>Chi-squared tests</strong> for regime clustering analysis</li>
           <li><strong>Jarque-Bera tests</strong> for fat-tail detection</li>
           <li><strong>Bootstrap confidence intervals</strong> for robust estimation</li>
-          <li><strong>Monte Carlo simulations</strong> for scenario analysis</li>
+          <li><strong>Scenario analysis</strong> for outlier impact quantification</li>
         </ul>
         <p>
-          All analyses use S&P 500 daily returns from 1928-2025 (97 years, ~24,000 trading days).
+          All analyses use S&P 500 daily returns from 1928-2010 (~20,000 trading days).
         </p>
       </section>
     </div>

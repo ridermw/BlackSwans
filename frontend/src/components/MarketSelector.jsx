@@ -16,8 +16,8 @@ const MarketSelector = ({ tickers, selectedTicker, onTickerChange }) => {
         className="ticker-dropdown"
       >
         {tickers.map((ticker) => (
-          <option key={ticker.symbol} value={ticker.symbol}>
-            {ticker.name} ({ticker.symbol}) - {ticker.period}
+          <option key={ticker.ticker_code} value={ticker.ticker_code}>
+            {ticker.ticker_code.toUpperCase()} ({ticker.ticker_symbol}) {ticker.start_date} to {ticker.end_date}
           </option>
         ))}
       </select>

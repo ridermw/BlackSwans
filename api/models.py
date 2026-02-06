@@ -84,6 +84,32 @@ class ValidationResponse(BaseModel):
     claim_details: List[ClaimVerdict]
 
 
+class ReturnDataPoint(BaseModel):
+    """Single day's return with metadata."""
+    date: str
+    ret: float
+    is_outlier: bool
+    regime: Optional[int] = None
+
+
+class HistogramBin(BaseModel):
+    """Histogram bin data."""
+    bin_center: float
+    count: int
+    normal_expected: float
+
+
+class ChartDataResponse(BaseModel):
+    """Chart-ready data for frontend visualization."""
+    ticker: str
+    start_date: str
+    end_date: str
+    n_trading_days: int
+    returns: List[ReturnDataPoint]
+    histogram: List[HistogramBin]
+    scenario_impacts: Dict[str, float]
+
+
 class ErrorResponse(BaseModel):
     """Error response."""
     error: str
