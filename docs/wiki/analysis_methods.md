@@ -222,12 +222,25 @@ If actual downtrend outliers >> 30% of total, clustering is evident.
 - Quantify regime clustering effect
 - Test multiple quantile thresholds
 
+## Implemented Enhancements (M2: Statistical Validation)
+
+### Completed in Milestone 2
+1. **Statistical Testing:** Chi-square test for outlier clustering (COMPLETED)
+   - Tests hypothesis that outliers cluster in downtrends
+   - Results show 70.7% of outliers in downtrends, p ≈ 10⁻⁵²
+2. **Normality Tests:** Jarque-Bera, KS, Shapiro-Wilk (COMPLETED)
+3. **Bootstrap Confidence Intervals:** Non-parametric CI for any statistic (COMPLETED)
+4. **Trend Following Backtest:** MA strategy evaluation (COMPLETED)
+5. **Performance Metrics:** Sharpe ratio, max drawdown calculation (COMPLETED)
+
+See `docs/validation_report.md` for complete evidence and results.
+
 ## Future Enhancements
 
-### Potential Improvements
-1. **Statistical Testing:** Chi-square test for outlier clustering
-2. **Conditional Analysis:** Returns conditioned on prior regime
-3. **Rolling Windows:** Test stability of regime classification over time
-4. **Cost Analysis:** Model realistic transaction costs for regime switching
-5. **Machine Learning:** Alternative regime classification methods
-6. **Multivariate:** Correlations across international indices
+### Remaining Improvements
+1. **Conditional Analysis:** Returns conditioned on prior regime
+2. **Rolling Windows:** Test stability of regime classification over time
+3. **Cost Analysis:** Model realistic transaction costs for regime switching
+4. **Machine Learning:** Alternative regime classification methods (e.g., HMM, GARCH)
+5. **Multivariate:** Correlations across international indices
+6. **Data Update:** Extend historical data from 2010 to 2025
