@@ -27,7 +27,7 @@ from blackswans.analysis.periods import (
     TICKER_MAP as PERIODS_TICKER_MAP,
 )
 
-from .models import (
+from models import (
     HealthResponse,
     TickerInfo,
     TickersResponse,
