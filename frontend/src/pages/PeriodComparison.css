@@ -1,0 +1,401 @@
+/* ==========================================================================
+   PeriodComparison – dark-theme page
+   bg: #0a0e17 | cards: #131a2b | text: #e0e6ed
+   ========================================================================== */
+
+/* ---- Page ---- */
+.pc-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px 64px;
+  background: #0a0e17;
+  color: #e0e6ed;
+  min-height: 100vh;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+/* ---- Loading / Error ---- */
+.pc-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 20px;
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.pc-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: pc-spin 0.8s linear infinite;
+}
+
+@keyframes pc-spin {
+  to { transform: rotate(360deg); }
+}
+
+.pc-error {
+  text-align: center;
+  padding: 80px 20px;
+  font-size: 18px;
+  color: #ef4444;
+}
+
+.pc-error-detail {
+  display: block;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+/* ---- Header ---- */
+.pc-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pc-header h1 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #e0e6ed 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pc-subtitle {
+  font-size: 17px;
+  color: #94a3b8;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.pc-subtitle em {
+  color: #60a5fa;
+  font-style: italic;
+}
+
+/* ---- Controls (date picker) ---- */
+.pc-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.pc-date-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pc-date-input {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #131a2b;
+  color: #e0e6ed;
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.pc-date-input:focus {
+  border-color: #3b82f6;
+}
+
+/* Webkit date input icon */
+.pc-date-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+
+/* ---- Section titles ---- */
+.pc-section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #e0e6ed;
+}
+
+/* ---- Claims comparison table ---- */
+.pc-claims-section {
+  margin-bottom: 48px;
+}
+
+.pc-table-wrapper {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.pc-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #131a2b;
+}
+
+.pc-table thead th {
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  background: #0f1524;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.pc-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.15s;
+}
+
+.pc-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.pc-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pc-th-claim {
+  min-width: 180px;
+}
+
+.pc-td-claim {
+  padding: 16px 18px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #e0e6ed;
+  white-space: nowrap;
+}
+
+.pc-td-result {
+  padding: 16px 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.pc-td-result.pc-confirmed {
+  color: #22c55e;
+}
+
+.pc-td-result.pc-not-confirmed {
+  color: #ef4444;
+}
+
+.pc-verdict-icon {
+  margin-right: 6px;
+}
+
+.pc-verdict-text {
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+}
+
+.pc-metric-detail {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* ---- Mobile cards (hidden on desktop) ---- */
+.pc-mobile-cards {
+  display: none;
+}
+
+/* ---- Chart section ---- */
+.pc-chart-section {
+  margin-bottom: 48px;
+}
+
+.pc-chart-card {
+  background: #131a2b;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+/* ---- CAGR detail table ---- */
+.pc-cagr-table-wrapper {
+  margin-top: 0;
+}
+
+.pc-cagr-table td {
+  padding: 12px 18px;
+  font-size: 14px;
+  color: #e0e6ed;
+  text-align: left;
+}
+
+.pc-impact-negative {
+  color: #ef4444 !important;
+}
+
+.pc-impact-positive {
+  color: #22c55e !important;
+}
+
+/* ---- Takeaway box ---- */
+.pc-takeaway {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px 28px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: #131a2b;
+}
+
+.pc-takeaway--positive {
+  border-left: 4px solid #22c55e;
+}
+
+.pc-takeaway--mixed {
+  border-left: 4px solid #f59e0b;
+}
+
+.pc-takeaway--negative {
+  border-left: 4px solid #ef4444;
+}
+
+.pc-takeaway-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.pc-takeaway-body h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #e0e6ed;
+}
+
+.pc-takeaway-body p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 768px) {
+  .pc-page {
+    padding: 24px 12px 48px;
+  }
+
+  .pc-header h1 {
+    font-size: 26px;
+  }
+
+  .pc-subtitle {
+    font-size: 15px;
+  }
+
+  .pc-section-title {
+    font-size: 20px;
+  }
+
+  /* Hide desktop table, show mobile cards */
+  .pc-table-wrapper {
+    display: none;
+  }
+
+  .pc-mobile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pc-mobile-claim-card {
+    background: #131a2b;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 18px;
+  }
+
+  .pc-mobile-claim-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #e0e6ed;
+  }
+
+  .pc-mobile-result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+  }
+
+  .pc-mobile-result:first-of-type {
+    border-top: none;
+  }
+
+  .pc-mobile-result.pc-confirmed {
+    color: #22c55e;
+  }
+
+  .pc-mobile-result.pc-not-confirmed {
+    color: #ef4444;
+  }
+
+  .pc-mobile-period {
+    font-weight: 600;
+    color: #94a3b8;
+    min-width: 90px;
+    font-size: 13px;
+  }
+
+  .pc-chart-card {
+    padding: 12px;
+  }
+
+  .pc-takeaway {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Claims table: re-show on tablets that are just under 768 */
+  .pc-claims-section .pc-table-wrapper {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .pc-controls {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .pc-cagr-table td,
+  .pc-cagr-table th {
+    padding: 10px 10px;
+    font-size: 12px;
+  }
+}

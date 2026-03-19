@@ -1,0 +1,336 @@
+/* MultiIndex Page — Dark financial dashboard theme */
+
+.multi-index {
+  background: #0a0e17;
+  color: #e0e6ed;
+  min-height: 100vh;
+}
+
+/* ── Header ──────────────────────────────────────── */
+
+.mi-header {
+  text-align: center;
+  padding: 80px 24px 48px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.mi-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 13px;
+  color: #7a8ba8;
+  margin-bottom: 20px;
+}
+
+.mi-header h1 {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 20px;
+  color: #ffffff;
+}
+
+.mi-subtitle {
+  font-size: 18px;
+  color: #8896ab;
+  line-height: 1.6;
+}
+
+/* ── Summary Bar ─────────────────────────────────── */
+
+.mi-summary {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 56px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.summary-card {
+  background: #131a2b;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.summary-card:hover {
+  border-color: #2d3a50;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.summary-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.summary-value.accent-green {
+  color: #22c55e;
+}
+
+.summary-label {
+  font-size: 14px;
+  color: #7a8ba8;
+  line-height: 1.4;
+}
+
+/* ── Table Section ───────────────────────────────── */
+
+.mi-table-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+}
+
+.mi-table-section h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.mi-table-wrapper {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid #1e293b;
+}
+
+.mi-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #131a2b;
+  font-size: 14px;
+  min-width: 900px;
+}
+
+.mi-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #0f1520;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #8896ab;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #1e293b;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.mi-table thead th.sortable {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.mi-table thead th.sortable:hover {
+  color: #e0e6ed;
+}
+
+.sort-arrow {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 12px;
+}
+
+.sort-arrow.muted {
+  color: #3a4a60;
+}
+
+.sort-arrow.active {
+  color: #22c55e;
+}
+
+.mi-table tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid #1a2235;
+  white-space: nowrap;
+  color: #e0e6ed;
+}
+
+/* Alternating row colors */
+.mi-table tbody tr:nth-child(odd) {
+  background: #131a2b;
+}
+
+.mi-table tbody tr:nth-child(even) {
+  background: #0f1520;
+}
+
+.mi-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.mi-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* First column (index name) is bold */
+.mi-table tbody td:first-child {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Color-coded cells */
+.cell-green {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.cell-red {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* ── Chart Sections ──────────────────────────────── */
+
+.mi-chart-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+}
+
+.mi-chart-section h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.mi-chart-section .section-subtitle {
+  font-size: 15px;
+  color: #7a8ba8;
+  margin-bottom: 24px;
+}
+
+.mi-chart-card {
+  background: #131a2b;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 24px;
+  overflow: hidden;
+}
+
+/* ── Loading / Error States ──────────────────────── */
+
+.mi-loading,
+.mi-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 24px;
+}
+
+.mi-loading {
+  color: #7a8ba8;
+}
+
+.mi-error {
+  color: #ef4444;
+}
+
+.mi-error p {
+  margin-bottom: 16px;
+}
+
+/* Reuse the spinner from Landing (defined globally) */
+.multi-index .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #1e293b;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: mi-spin 0.8s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes mi-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.multi-index .retry-btn {
+  background: #1e293b;
+  color: #e0e6ed;
+  border: 1px solid #2d3a50;
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.multi-index .retry-btn:hover {
+  background: #2d3a50;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .mi-summary {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mi-header {
+    padding: 48px 20px 32px;
+  }
+
+  .mi-header h1 {
+    font-size: 28px;
+  }
+
+  .mi-subtitle {
+    font-size: 15px;
+  }
+
+  .summary-value {
+    font-size: 26px;
+  }
+
+  .mi-table-section,
+  .mi-chart-section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .mi-table {
+    font-size: 13px;
+  }
+
+  .mi-table thead th,
+  .mi-table tbody td {
+    padding: 10px 12px;
+  }
+
+  .mi-chart-card {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mi-header h1 {
+    font-size: 24px;
+  }
+
+  .summary-value {
+    font-size: 22px;
+  }
+}

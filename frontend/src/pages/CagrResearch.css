@@ -1,0 +1,342 @@
+/* ── CAGR Research Page — Dark Theme ────────────────────────── */
+
+.cagr-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background: #0a0e17;
+  min-height: 100vh;
+  color: #e0e6ed;
+}
+
+/* ── Page Header ─────────────────────────────────────────────── */
+
+.cagr-page .page-header {
+  text-align: center;
+  margin-bottom: 36px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #1e293b;
+}
+
+.cagr-page .page-header h1 {
+  font-size: 32px;
+  color: #f1f5f9;
+  margin-bottom: 8px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.cagr-page .page-header .subtitle {
+  font-size: 16px;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+/* ── Controls Row ────────────────────────────────────────────── */
+
+.cagr-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+  margin-bottom: 36px;
+  padding: 20px 24px;
+  background: #131a2b;
+  border-radius: 10px;
+  border: 1px solid #1e293b;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.control-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.control-group select,
+.control-group input[type="date"] {
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #e0e6ed;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  appearance: auto;
+}
+
+.control-group select:hover,
+.control-group input[type="date"]:hover {
+  border-color: #60a5fa;
+}
+
+.control-group select:focus,
+.control-group input[type="date"]:focus {
+  border-color: #60a5fa;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+
+/* ── The Money Table ─────────────────────────────────────────── */
+
+.money-table-card {
+  background: #131a2b;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 28px;
+  margin-bottom: 36px;
+}
+
+.money-table-card h2 {
+  font-size: 22px;
+  color: #f1f5f9;
+  margin-bottom: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.money-table-wrapper {
+  overflow-x: auto;
+}
+
+.money-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.money-table thead th {
+  background: #0f172a;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 14px 18px;
+  text-align: right;
+  border-bottom: 2px solid #1e293b;
+  white-space: nowrap;
+}
+
+.money-table thead th:first-child {
+  text-align: left;
+  border-top-left-radius: 8px;
+}
+
+.money-table thead th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.money-table tbody td {
+  padding: 14px 18px;
+  text-align: right;
+  border-bottom: 1px solid #1e293b;
+  font-variant-numeric: tabular-nums;
+  color: #e0e6ed;
+}
+
+.money-table tbody td:first-child {
+  text-align: left;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.money-table tbody tr:hover {
+  background: rgba(96, 165, 250, 0.06);
+}
+
+.money-table tbody tr:last-child td {
+  border-bottom: none;
+  font-weight: 700;
+}
+
+.money-table tbody tr:last-child td:first-child {
+  color: #60a5fa;
+}
+
+.money-table .cagr-all {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.money-table .cagr-miss-best {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.money-table .cagr-miss-worst {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.impact-positive {
+  color: #22c55e !important;
+  font-weight: 700 !important;
+}
+
+.impact-negative {
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+}
+
+.days-count {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* ── Chart Cards ─────────────────────────────────────────────── */
+
+.cagr-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(580px, 1fr));
+  gap: 28px;
+  margin-bottom: 36px;
+}
+
+.cagr-chart-card {
+  background: #131a2b;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.cagr-chart-card h2 {
+  font-size: 18px;
+  color: #f1f5f9;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.cagr-chart-card .chart-description {
+  margin-top: 12px;
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.6;
+  font-style: italic;
+}
+
+/* ── Key Insight Callout ─────────────────────────────────────── */
+
+.insight-callout {
+  background: linear-gradient(135deg, #131a2b 0%, #0f172a 100%);
+  border: 1px solid #334155;
+  border-left: 4px solid #60a5fa;
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-top: 36px;
+}
+
+.insight-callout h3 {
+  font-size: 16px;
+  color: #60a5fa;
+  margin-bottom: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.insight-callout p {
+  color: #cbd5e1;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.insight-callout .highlight {
+  color: #f1f5f9;
+  font-weight: 700;
+}
+
+.insight-callout .highlight-red {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.insight-callout .highlight-green {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+/* ── Loading / Error ─────────────────────────────────────────── */
+
+.cagr-page .loading,
+.cagr-page .error {
+  text-align: center;
+  padding: 80px 20px;
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.cagr-page .error {
+  color: #ef4444;
+}
+
+.cagr-page .loading-spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #1e293b;
+  border-top-color: #60a5fa;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+
+@media (max-width: 1200px) {
+  .cagr-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .cagr-page {
+    padding: 24px 12px;
+  }
+
+  .cagr-page .page-header h1 {
+    font-size: 24px;
+  }
+
+  .cagr-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .control-group {
+    min-width: unset;
+  }
+
+  .money-table {
+    font-size: 13px;
+  }
+
+  .money-table thead th,
+  .money-table tbody td {
+    padding: 10px 12px;
+  }
+
+  .money-table-card {
+    padding: 16px;
+  }
+
+  .insight-callout {
+    padding: 18px 20px;
+  }
+}
