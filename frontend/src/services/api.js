@@ -136,7 +136,7 @@ export async function fetchAnalysis(ticker = 'sp500') {
  * @param {string} splitDate - ISO date string (e.g. "2011-01-01")
  * @returns {Promise<object>} { ticker, split_date, periods }
  */
-export async function fetchPeriodComparison(ticker, splitDate) {
+export async function fetchPeriodComparison(ticker, splitDate = '2011-01-01') {
   const params = new URLSearchParams({ split_date: splitDate });
   const primaryUrl = `${API_BASE}/api/period-comparison/${encodeURIComponent(ticker)}?${params}`;
   const fallbackUrl = `${BASE}/data/${encodeURIComponent(ticker)}/period-comparison.json`;
@@ -154,7 +154,7 @@ export async function fetchPeriodComparison(ticker, splitDate) {
  * @param {number} [nDays=10] - Number of best/worst days to remove
  * @returns {Promise<object>} { ticker, split_date, n_days, rows }
  */
-export async function fetchCagrMatrix(ticker, splitDate, nDays = 10) {
+export async function fetchCagrMatrix(ticker, splitDate = '2011-01-01', nDays = 10) {
   const params = new URLSearchParams({ split_date: splitDate, n_days: String(nDays) });
   const primaryUrl = `${API_BASE}/api/cagr-matrix/${encodeURIComponent(ticker)}?${params}`;
   const fallbackUrl = `${BASE}/data/${encodeURIComponent(ticker)}/cagr-matrix.json`;
@@ -170,7 +170,7 @@ export async function fetchCagrMatrix(ticker, splitDate, nDays = 10) {
  * @param {string} splitDate - ISO date string
  * @returns {Promise<object>} { split_date, indices }
  */
-export async function fetchMultiIndex(splitDate) {
+export async function fetchMultiIndex(splitDate = '2011-01-01') {
   const params = new URLSearchParams({ split_date: splitDate });
   const primaryUrl = `${API_BASE}/api/multi-index?${params}`;
   const fallbackUrl = `${BASE}/data/multi-index.json`;
