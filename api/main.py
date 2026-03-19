@@ -19,6 +19,13 @@ from blackswans.analysis.regimes import (
     regime_performance,
 )
 from blackswans.validate_claims import run_full_validation
+from blackswans.analysis.periods import (
+    period_claim_summary,
+    period_cagr_matrix,
+    multi_index_summary,
+    PERIOD_LABELS,
+    TICKER_MAP as PERIODS_TICKER_MAP,
+)
 
 from .models import (
     HealthResponse,
@@ -34,6 +41,13 @@ from .models import (
     ReturnDataPoint,
     HistogramBin,
     ErrorResponse,
+    ClaimResult,
+    PeriodResult,
+    PeriodComparisonResponse,
+    CagrRow,
+    CagrMatrixResponse,
+    IndexSummary,
+    MultiIndexResponse,
 )
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
@@ -42,7 +56,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="BlackSwans API",
     description="API for validating Faber's market outlier analysis",
-    version="0.2.0",
+    version="0.3.0",
 )
 
 # Enable CORS for development
@@ -380,6 +394,110 @@ async def get_chart_data(
         raise
     except Exception as e:
         logger.error(f"Chart data failed for {ticker}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ──────────────────────────────────────────────────────────────
+# v0.3: Period comparison endpoints
+# ──────────────────────────────────────────────────────────────
+
+DEFAULT_SPLIT_DATE = "2011-01-01"
+
+
+@app.get("/api/period-comparison/{ticker}", response_model=PeriodComparisonResponse)
+async def period_comparison(
+    ticker: str,
+    split_date: str = Query(DEFAULT_SPLIT_DATE, description="Date to split pre/post periods"),
+):
+    """Compare Faber's 4 claims across pre/post/full periods."""
+    try:
+        ticker_info = get_ticker_info(ticker)
+        prices_df = load_price_csv(Path(ticker_info.data_file), ticker_info.start_date, ticker_info.end_date)
+        prices = prices_df["Close"]
+        returns = compute_daily_returns(prices)
+
+        raw = period_claim_summary(prices, returns, split_date)
+
+        periods = []
+        for key in ["pre", "post", "full"]:
+            data = raw[key]
+
+            def _claim_result(claim_dict: dict) -> ClaimResult:
+                verdict = claim_dict.pop("verdict")
+                return ClaimResult(verdict=verdict, metrics=claim_dict)
+
+            periods.append(PeriodResult(
+                period=key,
+                period_label=PERIOD_LABELS[key],
+                n_trading_days=data["n_trading_days"],
+                start_date=data["start_date"],
+                end_date=data["end_date"],
+                fat_tails=_claim_result(dict(data["fat_tails"])),
+                outsized_influence=_claim_result(dict(data["outsized_influence"])),
+                clustering=_claim_result(dict(data["clustering"])),
+                trend_following=_claim_result(dict(data["trend_following"])),
+            ))
+
+        return PeriodComparisonResponse(
+            ticker=ticker,
+            split_date=split_date,
+            periods=periods,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Period comparison failed for {ticker}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/cagr-matrix/{ticker}", response_model=CagrMatrixResponse)
+async def cagr_matrix(
+    ticker: str,
+    split_date: str = Query(DEFAULT_SPLIT_DATE, description="Date to split pre/post periods"),
+    n_days: int = Query(10, ge=1, le=100, description="Number of best/worst days to remove"),
+):
+    """CAGR scenario matrix: miss best/worst N days across pre/post/full periods."""
+    try:
+        ticker_info = get_ticker_info(ticker)
+        prices_df = load_price_csv(Path(ticker_info.data_file), ticker_info.start_date, ticker_info.end_date)
+        returns = compute_daily_returns(prices_df["Close"])
+
+        df = period_cagr_matrix(returns, split_date, n_days)
+
+        rows = [
+            CagrRow(**row.to_dict())
+            for _, row in df.iterrows()
+        ]
+
+        return CagrMatrixResponse(
+            ticker=ticker,
+            split_date=split_date,
+            n_days=n_days,
+            rows=rows,
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"CAGR matrix failed for {ticker}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/multi-index", response_model=MultiIndexResponse)
+async def multi_index(
+    split_date: str = Query(DEFAULT_SPLIT_DATE, description="Date to split pre/post periods"),
+):
+    """Run split-period analysis across all 12 indices."""
+    try:
+        results = multi_index_summary(str(DATA_DIR), split_date=split_date)
+
+        indices = [IndexSummary(**r) for r in results]
+
+        return MultiIndexResponse(
+            split_date=split_date,
+            indices=indices,
+        )
+    except Exception as e:
+        logger.error(f"Multi-index analysis failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
