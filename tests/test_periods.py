@@ -85,6 +85,8 @@ class TestPeriodCagrMatrix:
         assert "cagr_all" in result.columns
         assert "cagr_miss_best" in result.columns
         assert "cagr_miss_worst" in result.columns
+        assert "cagr_miss_both" in result.columns
+        assert "impact_miss_both" in result.columns
 
     def test_has_three_periods(self, long_returns):
         result = period_cagr_matrix(long_returns, split_date="2011-01-01")
@@ -94,7 +96,7 @@ class TestPeriodCagrMatrix:
         """Default n_days=[5, 10, 20, 50]; matrix uses n=10."""
         result = period_cagr_matrix(long_returns, split_date="2011-01-01", n_days=10)
         # All values should be finite floats
-        for col in ["cagr_all", "cagr_miss_best", "cagr_miss_worst"]:
+        for col in ["cagr_all", "cagr_miss_best", "cagr_miss_worst", "cagr_miss_both"]:
             assert result[col].notna().all()
 
     def test_miss_best_reduces_cagr(self, long_returns):
@@ -108,6 +110,12 @@ class TestPeriodCagrMatrix:
         result = period_cagr_matrix(long_returns, split_date="2011-01-01", n_days=10)
         for _, row in result.iterrows():
             assert row["cagr_miss_worst"] > row["cagr_all"]
+
+    def test_miss_both_between_best_and_worst(self, long_returns):
+        """Missing both best and worst days CAGR should be between miss-best and miss-worst."""
+        result = period_cagr_matrix(long_returns, split_date="2011-01-01", n_days=10)
+        for _, row in result.iterrows():
+            assert row["cagr_miss_best"] < row["cagr_miss_both"] < row["cagr_miss_worst"]
 
     def test_custom_n_days(self, long_returns):
         r5 = period_cagr_matrix(long_returns, split_date="2011-01-01", n_days=5)
@@ -262,6 +270,9 @@ class TestEdgeCases:
         assert result["trend_following"]["verdict"] == "INSUFFICIENT DATA"
         # outsized_influence should still work (n ≥ 20)
         assert result["outsized_influence"]["verdict"] != "INSUFFICIENT DATA"
+        # miss_both fields should be present in outsized_influence
+        assert "cagr_miss_both_10" in result["outsized_influence"]
+        assert "impact_miss_both_10" in result["outsized_influence"]
 
     def test_very_short_data_all_insufficient(self):
         """10 data points: outsized, clustering, trend_following all insufficient."""

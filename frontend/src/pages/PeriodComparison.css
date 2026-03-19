@@ -254,6 +254,10 @@
   color: #22c55e !important;
 }
 
+.pc-impact-both {
+  color: #8b5cf6 !important;
+}
+
 /* ---- Takeaway box ---- */
 .pc-takeaway {
   display: flex;

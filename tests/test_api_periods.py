@@ -71,6 +71,8 @@ class TestCagrMatrix:
             assert "cagr_all" in row
             assert "cagr_miss_best" in row
             assert "cagr_miss_worst" in row
+            assert "cagr_miss_both" in row
+            assert "impact_miss_both" in row
             assert row["cagr_miss_best"] < row["cagr_all"]
             assert row["cagr_miss_worst"] > row["cagr_all"]
 

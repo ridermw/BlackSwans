@@ -203,6 +203,11 @@
   color: #e0e6ed;
 }
 
+.cell-miss-both {
+  color: #8b5cf6;
+  font-weight: 500;
+}
+
 .verdict-chip {
   display: inline-block;
   padding: 3px 10px;

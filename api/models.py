@@ -158,8 +158,10 @@ class CagrRow(BaseModel):
     cagr_all: float
     cagr_miss_best: float
     cagr_miss_worst: float
+    cagr_miss_both: float = Field(description="CAGR excluding both best and worst N days")
     impact_miss_best: float
     impact_miss_worst: float
+    impact_miss_both: float = Field(description="CAGR impact of missing both best and worst N days")
 
 
 class CagrMatrixResponse(BaseModel):
