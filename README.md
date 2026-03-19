@@ -1,10 +1,11 @@
 # Black Swans Validation
 
 ![Python](https://img.shields.io/badge/python-3.9%2B-blue)
-![Tests](https://img.shields.io/badge/tests-68%20passing-green)
+![Tests](https://img.shields.io/badge/tests-197%20passing-green)
+![Coverage](https://img.shields.io/badge/coverage-88%25-brightgreen)
 ![License: AGPL v3](https://img.shields.io/badge/license-AGPL%20v3-blue)
 
-> Validate and extend the analysis from **"Where the Black Swans Hide & The 10 Best Days Myth"** by Faber & CQR (Aug 2011).
+> Validate and extend the analysis from **"Where the Black Swans Hide & The 10 Best Days Myth"** by Faber & CQR (Aug 2011) — with an interactive dashboard for exploring outlier dynamics across 12 global indices.
 
 Repository: [https://github.com/ridermw/BlackSwans](https://github.com/ridermw/BlackSwans)
 
@@ -21,6 +22,17 @@ All four core claims from Faber's 2011 paper are **statistically confirmed**:
 
 See [docs/validation_report.md](docs/validation_report.md) for the full report with statistical evidence.
 
+## Dashboard
+
+An interactive React dashboard provides four pages for exploring the analysis:
+
+| Page | Description |
+|------|-------------|
+| **Landing** | Thesis verdict with key statistics and claim summaries |
+| **Period Comparison** | Pre/post-2011 analysis of all 4 claims (did findings hold after publication?) |
+| **Multi-Index** | 12 global indices compared in a sortable table with per-index verdicts |
+| **CAGR Research** | Interactive scenario analysis with waterfall charts (miss best/worst N days) |
+
 ---
 
 ## Installation
@@ -33,7 +45,7 @@ pip install -e ".[dev]"
 
 ## Usage
 
-### Run the analysis
+### Run the analysis (CLI)
 
 ```bash
 # Using the package CLI
@@ -53,10 +65,30 @@ python -m blackswans.validate_claims \
   --output-dir output/validation
 ```
 
+### Start the dashboard
+
+```bash
+# Start the dashboard
+cd frontend && npm run dev
+
+# In another terminal, start the API
+cd api && uvicorn main:app --reload
+```
+
 ### Run tests
 
 ```bash
-pytest tests/ -v
+pytest tests/ -v                                    # 197 tests
+pytest tests/ -v --cov=src/blackswans              # with coverage (88%)
+```
+
+## Static Deployment
+
+Generate pre-computed JSON and build the frontend for GitHub Pages or any static host:
+
+```bash
+python scripts/generate_static_data.py
+cd frontend && npm run build
 ```
 
 ## Project Structure
@@ -64,12 +96,13 @@ pytest tests/ -v
 ```
 BlackSwans/
 ├── src/
-│   ├── blackswans/              # Main package
+│   ├── blackswans/              # Main package (v0.3.0)
 │   │   ├── analysis/
 │   │   │   ├── outliers.py      # Outlier identification & stats
 │   │   │   ├── scenarios.py     # Scenario returns (miss best/worst days)
 │   │   │   ├── regimes.py       # MA regime classification & performance
-│   │   │   └── statistics.py    # Statistical tests (chi-sq, KS, bootstrap)
+│   │   │   ├── statistics.py    # Statistical tests (chi-sq, KS, bootstrap)
+│   │   │   └── periods.py       # Split-period analysis (pre/post-publication)
 │   │   ├── data/
 │   │   │   ├── loaders.py       # Data loading & caching
 │   │   │   └── transforms.py    # Daily return computation
@@ -79,7 +112,17 @@ BlackSwans/
 │   │   ├── cli.py               # CLI entry point
 │   │   └── validate_claims.py   # Full 4-claim validation
 │   └── validate_outliers.py     # Legacy wrapper
-├── tests/                       # 68 tests (pytest)
+├── api/                         # FastAPI backend (8 endpoints)
+│   ├── main.py                  # API application
+│   └── models.py                # Pydantic response models
+├── frontend/                    # React + Vite dashboard (4 pages)
+│   └── src/
+│       ├── pages/               # Landing, PeriodComparison, MultiIndex, CagrResearch
+│       ├── components/          # Reusable chart and UI components
+│       └── services/api.js      # API client with fetchWithFallback
+├── scripts/
+│   └── generate_static_data.py  # Static JSON generation for GitHub Pages
+├── tests/                       # 197 tests (pytest, 88% coverage)
 ├── data/                        # 12 index CSV files (1928-2025)
 ├── output/                      # Analysis results
 ├── docs/
