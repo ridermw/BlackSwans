@@ -3,7 +3,7 @@ import Plot from 'react-plotly.js';
 import { fetchPeriodComparison, fetchCagrMatrix } from '../services/api';
 import './PeriodComparison.css';
 
-const DEFAULT_TICKER = '^GSPC';
+const DEFAULT_TICKER = 'sp500';
 const DEFAULT_SPLIT_DATE = '2011-01-01';
 
 const CLAIM_LABELS = {
