@@ -1,4 +1,36 @@
+/** Static asset base path (Vite public base URL, trailing slash stripped). */
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+/**
+ * Live API base URL. Defaults to same-origin ('') so requests go to the
+ * hosting server.  Override with VITE_API_BASE env var for development
+ * against a remote FastAPI instance (e.g. "http://localhost:8000").
+ */
+const API_BASE = (import.meta.env.VITE_API_BASE ?? '').replace(/\/$/, '');
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch with error handling.  Tries the primary URL first; if a fallback
+ * is provided and the primary fails, retries against the fallback.
+ */
+async function fetchWithFallback(primaryUrl, fallbackUrl, label) {
+  let response = await fetch(primaryUrl);
+  if (response.ok) return response.json();
+
+  if (fallbackUrl) {
+    response = await fetch(fallbackUrl);
+    if (response.ok) return response.json();
+  }
+
+  throw new Error(`Failed to fetch ${label}: ${response.status} ${response.statusText}`);
+}
+
+// ---------------------------------------------------------------------------
+// Existing v0.1 / v0.2 functions (static JSON data)
+// ---------------------------------------------------------------------------
 
 /**
  * Fetch list of available tickers.
@@ -20,7 +52,6 @@ export async function fetchClaims(ticker = 'sp500') {
   if (!response.ok) throw new Error(`Failed to fetch claims for ${ticker}: ${response.status}`);
   const data = await response.json();
 
-  // Transform backend ValidationResponse into frontend claim cards
   const claimMeta = [
     { id: 1, title: 'Fat-tailed Returns', description: 'Market returns exhibit significant fat tails (excess kurtosis)' },
     { id: 2, title: 'Outsized Impact of Extreme Days', description: 'A small number of extreme days have disproportionate impact on long-term returns' },
@@ -32,7 +63,6 @@ export async function fetchClaims(ticker = 'sp500') {
     const meta = claimMeta[i] || {};
     const details = claim.details || {};
 
-    // Extract key metrics per claim
     let metrics = {};
     if (i === 0) {
       metrics = {
@@ -90,4 +120,59 @@ export async function fetchAnalysis(ticker = 'sp500') {
   const response = await fetch(`${BASE}/data/${ticker}/analysis.json`);
   if (!response.ok) throw new Error(`Failed to fetch analysis for ${ticker}: ${response.status}`);
   return response.json();
+}
+
+// ---------------------------------------------------------------------------
+// New v0.3 functions (live API with static-JSON fallback)
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch period-comparison data for a ticker split at a given date.
+ *
+ * Live:   GET {API_BASE}/api/period-comparison/{ticker}?split_date=...
+ * Static: GET {BASE}/data/{ticker}/period-comparison.json
+ *
+ * @param {string} ticker   - Yahoo Finance ticker (e.g. "^GSPC")
+ * @param {string} splitDate - ISO date string (e.g. "2011-01-01")
+ * @returns {Promise<object>} { ticker, split_date, periods }
+ */
+export async function fetchPeriodComparison(ticker, splitDate) {
+  const params = new URLSearchParams({ split_date: splitDate });
+  const primaryUrl = `${API_BASE}/api/period-comparison/${encodeURIComponent(ticker)}?${params}`;
+  const fallbackUrl = `${BASE}/data/${encodeURIComponent(ticker)}/period-comparison.json`;
+  return fetchWithFallback(primaryUrl, fallbackUrl, `period comparison for ${ticker}`);
+}
+
+/**
+ * Fetch CAGR-matrix data showing impact of removing best/worst N days.
+ *
+ * Live:   GET {API_BASE}/api/cagr-matrix/{ticker}?split_date=...&n_days=...
+ * Static: GET {BASE}/data/{ticker}/cagr-matrix.json
+ *
+ * @param {string} ticker    - Yahoo Finance ticker
+ * @param {string} splitDate - ISO date string
+ * @param {number} [nDays=10] - Number of best/worst days to remove
+ * @returns {Promise<object>} { ticker, split_date, n_days, rows }
+ */
+export async function fetchCagrMatrix(ticker, splitDate, nDays = 10) {
+  const params = new URLSearchParams({ split_date: splitDate, n_days: String(nDays) });
+  const primaryUrl = `${API_BASE}/api/cagr-matrix/${encodeURIComponent(ticker)}?${params}`;
+  const fallbackUrl = `${BASE}/data/${encodeURIComponent(ticker)}/cagr-matrix.json`;
+  return fetchWithFallback(primaryUrl, fallbackUrl, `CAGR matrix for ${ticker}`);
+}
+
+/**
+ * Fetch multi-index comparison across all supported indices.
+ *
+ * Live:   GET {API_BASE}/api/multi-index?split_date=...
+ * Static: GET {BASE}/data/multi-index.json
+ *
+ * @param {string} splitDate - ISO date string
+ * @returns {Promise<object>} { split_date, indices }
+ */
+export async function fetchMultiIndex(splitDate) {
+  const params = new URLSearchParams({ split_date: splitDate });
+  const primaryUrl = `${API_BASE}/api/multi-index?${params}`;
+  const fallbackUrl = `${BASE}/data/multi-index.json`;
+  return fetchWithFallback(primaryUrl, fallbackUrl, 'multi-index comparison');
 }

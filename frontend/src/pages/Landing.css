@@ -1,0 +1,425 @@
+/* Landing Page — Dark financial dashboard theme */
+
+.landing {
+  background: #0a0e17;
+  color: #e0e6ed;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+}
+
+/* ── Hero Section ─────────────────────────────────── */
+
+.hero {
+  text-align: center;
+  padding: 80px 24px 60px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.hero-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 13px;
+  color: #7a8ba8;
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 20px;
+  color: #ffffff;
+}
+
+.hero-subtitle {
+  font-size: 20px;
+  color: #8896ab;
+  line-height: 1.5;
+  margin-bottom: 36px;
+}
+
+.verdict-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.verdict-badge.confirmed {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.verdict-badge.rejected {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.verdict-badge .badge-icon {
+  font-size: 22px;
+}
+
+/* ── Key Numbers ──────────────────────────────────── */
+
+.key-numbers {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+}
+
+.key-numbers h2 {
+  text-align: center;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #5a6a80;
+  margin-bottom: 28px;
+  font-weight: 500;
+}
+
+.numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.number-card {
+  background: #131a2b;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 28px 24px;
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.number-card:hover {
+  border-color: #2d3a50;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+.number-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.number-value.accent-green {
+  color: #22c55e;
+}
+
+.number-label {
+  font-size: 14px;
+  color: #7a8ba8;
+  line-height: 1.4;
+}
+
+/* ── Split Period Table ───────────────────────────── */
+
+.split-period {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 72px;
+}
+
+.split-period h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.split-period .section-subtitle {
+  font-size: 15px;
+  color: #7a8ba8;
+  margin-bottom: 28px;
+}
+
+.period-table-wrapper {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid #1e293b;
+}
+
+.period-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #131a2b;
+  font-size: 14px;
+}
+
+.period-table thead th {
+  background: #0f1520;
+  padding: 14px 20px;
+  text-align: left;
+  font-weight: 600;
+  color: #8896ab;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #1e293b;
+  white-space: nowrap;
+}
+
+.period-table tbody td {
+  padding: 14px 20px;
+  border-bottom: 1px solid #1a2235;
+  white-space: nowrap;
+}
+
+.period-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.period-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.period-label {
+  font-weight: 600;
+  color: #e0e6ed;
+}
+
+.cell-confirmed {
+  color: #22c55e;
+  font-weight: 500;
+}
+
+.cell-rejected {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.cell-neutral {
+  color: #e0e6ed;
+}
+
+.verdict-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.verdict-chip.confirmed {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.verdict-chip.rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ── Navigation Cards ─────────────────────────────── */
+
+.nav-cards {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 72px;
+}
+
+.nav-cards h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 24px;
+}
+
+.nav-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.nav-card {
+  display: block;
+  background: #131a2b;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 32px 28px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.nav-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 32px rgba(59, 130, 246, 0.12);
+  transform: translateY(-2px);
+}
+
+.nav-card-icon {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.nav-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 10px;
+}
+
+.nav-card p {
+  font-size: 14px;
+  color: #7a8ba8;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.nav-card .card-arrow {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 14px;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+/* ── Disclaimer Footer ────────────────────────────── */
+
+.landing-disclaimer {
+  border-top: 1px solid #1a2235;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.landing-disclaimer p {
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 12px;
+  color: #4a5568;
+  line-height: 1.7;
+}
+
+/* ── Loading / Error States ───────────────────────── */
+
+.landing-loading,
+.landing-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 24px;
+}
+
+.landing-loading {
+  color: #7a8ba8;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #1e293b;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.landing-error {
+  color: #ef4444;
+}
+
+.landing-error p {
+  margin-bottom: 16px;
+}
+
+.retry-btn {
+  background: #1e293b;
+  color: #e0e6ed;
+  border: 1px solid #2d3a50;
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.retry-btn:hover {
+  background: #2d3a50;
+}
+
+/* ── Responsive ───────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .numbers-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .nav-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 48px 20px 40px;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+  }
+
+  .numbers-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .number-value {
+    font-size: 28px;
+  }
+
+  .nav-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .period-table {
+    font-size: 13px;
+  }
+
+  .period-table thead th,
+  .period-table tbody td {
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .numbers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 26px;
+  }
+
+  .verdict-badge {
+    font-size: 15px;
+    padding: 10px 20px;
+  }
+}
