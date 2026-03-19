@@ -125,6 +125,7 @@ const PeriodComparison = () => {
     const allDays = rows.map(r => (r.cagr_all != null ? r.cagr_all * 100 : 0));
     const missBest = rows.map(r => (r.cagr_miss_best != null ? r.cagr_miss_best * 100 : 0));
     const missWorst = rows.map(r => (r.cagr_miss_worst != null ? r.cagr_miss_worst * 100 : 0));
+    const missBoth = rows.map(r => (r.cagr_miss_both != null ? r.cagr_miss_both * 100 : 0));
 
     return {
       data: [
@@ -151,6 +152,14 @@ const PeriodComparison = () => {
           type: 'bar',
           marker: { color: '#22c55e' },
           hovertemplate: '%{x}<br>CAGR: %{y:.2f}%<extra>Miss Worst 10</extra>',
+        },
+        {
+          x: labels,
+          y: missBoth,
+          name: 'Miss Both 10',
+          type: 'bar',
+          marker: { color: '#8b5cf6' },
+          hovertemplate: '%{x}<br>CAGR: %{y:.2f}%<extra>Miss Both 10</extra>',
         },
       ],
       layout: {
@@ -385,8 +394,10 @@ const PeriodComparison = () => {
                     <th>All Days</th>
                     <th>Miss Best 10</th>
                     <th>Miss Worst 10</th>
+                    <th>Miss Both 10</th>
                     <th>Impact (Best)</th>
                     <th>Impact (Worst)</th>
+                    <th>Impact (Both)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -396,11 +407,15 @@ const PeriodComparison = () => {
                       <td>{pct(row.cagr_all, 2, true)}</td>
                       <td>{pct(row.cagr_miss_best, 2, true)}</td>
                       <td>{pct(row.cagr_miss_worst, 2, true)}</td>
+                      <td>{pct(row.cagr_miss_both, 2, true)}</td>
                       <td className="pc-impact-negative">
                         {pct(row.impact_miss_best, 2, true)}
                       </td>
                       <td className="pc-impact-positive">
                         {pct(row.impact_miss_worst, 2, true)}
+                      </td>
+                      <td className="pc-impact-both">
+                        {pct(row.impact_miss_both != null ? -row.impact_miss_both : null, 2, true)}
                       </td>
                     </tr>
                   ))}

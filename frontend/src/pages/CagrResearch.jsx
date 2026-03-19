@@ -117,6 +117,16 @@ const CagrResearch = () => {
         textposition: 'outside',
         textfont: { size: 12, color: '#22c55e' },
       },
+      {
+        name: `Miss Both ${nDays}`,
+        x: periodLabels,
+        y: rows.map((r) => +(r.cagr_miss_both * 100).toFixed(2)),
+        type: 'bar',
+        marker: { color: '#8b5cf6' },
+        text: rows.map((r) => `${(r.cagr_miss_both * 100).toFixed(2)}%`),
+        textposition: 'outside',
+        textfont: { size: 12, color: '#8b5cf6' },
+      },
     ];
   }, [rows, periodLabels, nDays]);
 
@@ -137,6 +147,11 @@ const CagrResearch = () => {
       const worstImpact = +(r.impact_miss_worst * 100);
       values.push(+worstImpact.toFixed(2));
       colors.push('#22c55e');
+
+      labels.push(`${r.period_label} — Miss Both`);
+      const bothImpact = -(r.impact_miss_both * 100);
+      values.push(+bothImpact.toFixed(2));
+      colors.push('#8b5cf6');
     });
 
     return [
@@ -243,6 +258,8 @@ const CagrResearch = () => {
                     <th>Miss Worst {nDays}</th>
                     <th>Impact (Best)</th>
                     <th>Impact (Worst)</th>
+                    <th>Miss Both {nDays}</th>
+                    <th>Impact (Both)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -264,6 +281,10 @@ const CagrResearch = () => {
                       </td>
                       <td className="impact-positive">
                         {fmtSignedPct(r.impact_miss_worst)}
+                      </td>
+                      <td className="cagr-miss-both">{fmtPct(r.cagr_miss_both)}</td>
+                      <td className="impact-both">
+                        {fmtSignedPct(-r.impact_miss_both)}
                       </td>
                     </tr>
                   ))}
@@ -295,7 +316,8 @@ const CagrResearch = () => {
               <p className="chart-description">
                 Blue bars show baseline returns. Red shows the reduced CAGR when the
                 best {nDays} days are missed. Green shows the improved CAGR when the
-                worst {nDays} days are avoided.
+                worst {nDays} days are avoided. Purple shows the net effect of
+                missing both the best and worst {nDays} days.
               </p>
             </div>
 
@@ -323,7 +345,7 @@ const CagrResearch = () => {
                     {
                       type: 'line',
                       x0: -0.5,
-                      x1: rows.length * 2 - 0.5,
+                      x1: rows.length * 3 - 0.5,
                       y0: 0,
                       y1: 0,
                       line: { color: '#475569', width: 1, dash: 'dot' },
@@ -337,6 +359,7 @@ const CagrResearch = () => {
               <p className="chart-description">
                 Negative bars (red) show the CAGR penalty from missing the best days.
                 Positive bars (green) show the CAGR benefit of avoiding the worst days.
+                Purple bars show the net impact of missing both extremes.
               </p>
             </div>
           </div>
@@ -344,7 +367,7 @@ const CagrResearch = () => {
           {/* ── Key Insight Callout ────────────────────────────── */}
           {fullRow && (
             <div className="insight-callout">
-              <h3>💡 Key Insight</h3>
+              <h3>💡 Faber's Key Insight</h3>
               <p>
                 Missing just{' '}
                 <span className="highlight">{nDays} days</span>{' '}
@@ -352,12 +375,24 @@ const CagrResearch = () => {
                 <span className="highlight-red">
                   {(fullRow.impact_miss_best * 100).toFixed(2)} percentage points
                 </span>.
-                Conversely, avoiding the worst {nDays} days would add{' '}
+                Avoiding the worst {nDays} days adds{' '}
                 <span className="highlight-green">
                   {(fullRow.impact_miss_worst * 100).toFixed(2)} percentage points
                 </span>.
-                This effect persists in the post-publication era — the cost of
-                being out of the market on the best days is real and enduring.
+              </p>
+              <p>
+                <strong>The punchline:</strong> missing <em>both</em> the best and worst {nDays} days
+                yields a{' '}
+                <span className="highlight-purple">
+                  {fmtPct(fullRow.cagr_miss_both)} CAGR
+                </span>
+                {fullRow.cagr_miss_both > fullRow.cagr_all ? (
+                  <> — <strong>higher than buy-and-hold</strong> ({fmtPct(fullRow.cagr_all)})</>
+                ) : (
+                  <> vs buy-and-hold ({fmtPct(fullRow.cagr_all)})</>
+                )}.
+                {' '}This proves worst days hurt more than best days help. Since both
+                cluster in bear markets, trend-following avoids them both — a net win.
               </p>
             </div>
           )}

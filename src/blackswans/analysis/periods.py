@@ -146,7 +146,7 @@ def period_cagr_matrix(
 
     Returns DataFrame with columns:
         period, n_trading_days, cagr_all, cagr_miss_best, cagr_miss_worst,
-        impact_miss_best, impact_miss_worst
+        cagr_miss_both, impact_miss_best, impact_miss_worst, impact_miss_both
     """
     periods = split_returns_by_date(returns, split_date)
     rows = []
@@ -155,9 +155,10 @@ def period_cagr_matrix(
         if len(r) < n_days * 2:
             continue
         cagr_all = annualised_return(r)
-        _, miss_best, miss_worst, _ = scenario_returns(r, n_days, n_days)
+        _, miss_best, miss_worst, miss_both = scenario_returns(r, n_days, n_days)
         cagr_mb = annualised_return(miss_best)
         cagr_mw = annualised_return(miss_worst)
+        cagr_mboth = annualised_return(miss_both)
         rows.append({
             "period": key,
             "period_label": PERIOD_LABELS[key],
@@ -168,8 +169,10 @@ def period_cagr_matrix(
             "cagr_all": cagr_all,
             "cagr_miss_best": cagr_mb,
             "cagr_miss_worst": cagr_mw,
+            "cagr_miss_both": cagr_mboth,
             "impact_miss_best": cagr_all - cagr_mb,
             "impact_miss_worst": cagr_mw - cagr_all,
+            "impact_miss_both": cagr_all - cagr_mboth,
         })
     return pd.DataFrame(rows)
 
@@ -203,15 +206,18 @@ def _claim_summary_for_period(
     # Claim 2: Outsized influence (use N=10)
     if n >= 20:
         cagr_all = annualised_return(returns)
-        _, mb, mw, _ = scenario_returns(returns, 10, 10)
+        _, mb, mw, mboth = scenario_returns(returns, 10, 10)
         cagr_mb = annualised_return(mb)
         cagr_mw = annualised_return(mw)
+        cagr_mboth = annualised_return(mboth)
         impact = cagr_all - cagr_mb
         result["outsized_influence"] = {
             "cagr_all": float(cagr_all),
             "cagr_miss_best_10": float(cagr_mb),
             "cagr_miss_worst_10": float(cagr_mw),
+            "cagr_miss_both_10": float(cagr_mboth),
             "impact_miss_best_10": float(impact),
+            "impact_miss_both_10": float(cagr_all - cagr_mboth),
             "verdict": "CONFIRMED" if abs(impact) > 0.005 else "NOT CONFIRMED",
         }
     else:

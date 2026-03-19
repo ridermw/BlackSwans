@@ -51,6 +51,7 @@ const extractRow = (p) => {
     label: p.period_label ?? p.period,
     cagr: p.outsized_influence?.metrics?.cagr_all,
     missBest10: p.outsized_influence?.metrics?.impact_miss_best_10,
+    missBoth10: p.outsized_influence?.metrics?.impact_miss_both_10,
     kurtosis: p.fat_tails?.metrics?.excess_kurtosis,
     clusterPct: p.clustering?.metrics?.pct_in_downtrend,
     fatTailsVerdict: p.fat_tails?.verdict,
@@ -186,6 +187,7 @@ const Landing = () => {
                   <th>Period</th>
                   <th>CAGR</th>
                   <th>Miss 10 Best</th>
+                  <th>Miss Both 10</th>
                   <th>Kurtosis</th>
                   <th>Clustering %</th>
                   <th>Fat Tails</th>
@@ -200,6 +202,7 @@ const Landing = () => {
                     <td className="period-label">{r.label}</td>
                     <td className="cell-neutral">{pct(r.cagr)}</td>
                     <td className="cell-neutral">{pct(r.missBest10)}</td>
+                    <td className="cell-miss-both">{pct(r.missBoth10)}</td>
                     <td className="cell-neutral">
                       {r.kurtosis != null ? r.kurtosis.toFixed(1) : '—'}
                     </td>

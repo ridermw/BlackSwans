@@ -179,6 +179,16 @@
   font-weight: 600;
 }
 
+.money-table .cagr-miss-both {
+  color: #8b5cf6;
+  font-weight: 600;
+}
+
+.impact-both {
+  color: #8b5cf6 !important;
+  font-weight: 700 !important;
+}
+
 .impact-positive {
   color: #22c55e !important;
   font-weight: 700 !important;
@@ -264,6 +274,11 @@
 
 .insight-callout .highlight-green {
   color: #22c55e;
+  font-weight: 700;
+}
+
+.insight-callout .highlight-purple {
+  color: #8b5cf6;
   font-weight: 700;
 }
 
