@@ -114,3 +114,79 @@ class ErrorResponse(BaseModel):
     """Error response."""
     error: str
     detail: Optional[str] = None
+
+
+# ──────────────────────────────────────────────────────────────
+# v0.3: Period comparison and multi-index models
+# ──────────────────────────────────────────────────────────────
+
+
+class ClaimResult(BaseModel):
+    """Result of a single claim check for a period."""
+    verdict: str
+    metrics: Dict[str, Any] = {}
+
+
+class PeriodResult(BaseModel):
+    """Claim results for a single time period."""
+    period: str
+    period_label: str
+    n_trading_days: int
+    start_date: str
+    end_date: str
+    fat_tails: ClaimResult
+    outsized_influence: ClaimResult
+    clustering: ClaimResult
+    trend_following: ClaimResult
+
+
+class PeriodComparisonResponse(BaseModel):
+    """Side-by-side claim results for pre/post/full periods."""
+    ticker: str
+    split_date: str
+    periods: List[PeriodResult]
+
+
+class CagrRow(BaseModel):
+    """CAGR scenario for a single period."""
+    period: str
+    period_label: str
+    n_trading_days: int
+    start_date: str
+    end_date: str
+    n_days_removed: int
+    cagr_all: float
+    cagr_miss_best: float
+    cagr_miss_worst: float
+    impact_miss_best: float
+    impact_miss_worst: float
+
+
+class CagrMatrixResponse(BaseModel):
+    """CAGR scenario matrix across periods."""
+    ticker: str
+    split_date: str
+    n_days: int
+    rows: List[CagrRow]
+
+
+class IndexSummary(BaseModel):
+    """Summary of one index across periods."""
+    ticker: str
+    name: str
+    n_trading_days: int
+    start_date: str
+    end_date: str
+    cagr_full: float
+    cagr_pre: Optional[float] = None
+    cagr_post: Optional[float] = None
+    kurtosis_full: float
+    clustering_pct_full: Optional[float] = None
+    tf_max_drawdown: Optional[float] = None
+    bh_max_drawdown: Optional[float] = None
+
+
+class MultiIndexResponse(BaseModel):
+    """Comparison across all indices."""
+    split_date: str
+    indices: List[IndexSummary]
