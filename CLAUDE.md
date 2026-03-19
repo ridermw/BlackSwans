@@ -16,6 +16,16 @@ All four of Faber's core claims have been **statistically confirmed** (see `docs
 pip install -e ".[dev]"
 ```
 
+### Running the Dashboard
+
+```bash
+# Start the frontend dev server
+cd frontend && npm run dev
+
+# In another terminal, start the API
+cd api && uvicorn main:app --reload
+```
+
 ### Running the Analysis
 
 ```bash
@@ -39,8 +49,8 @@ python -m blackswans.validate_claims \
 ### Running Tests
 
 ```bash
-pytest tests/ -v                                    # 68 tests
-pytest tests/ -v --cov=src/blackswans              # with coverage
+pytest tests/ -v                                    # 197 tests
+pytest tests/ -v --cov=src/blackswans              # with coverage (88%)
 ```
 
 **Key parameters for CLI:**
@@ -61,7 +71,7 @@ The codebase is organized as a Python package with clear module separation:
 
 ```
 src/blackswans/
-├── __init__.py                  # Version (0.2.0)
+├── __init__.py                  # Version (0.3.0)
 ├── cli.py                       # CLI entry point (main())
 ├── validate_claims.py           # Full 4-claim validation orchestrator
 ├── data/
@@ -71,11 +81,38 @@ src/blackswans/
 │   ├── outliers.py              # OutlierStats dataclass, calculate_outlier_stats()
 │   ├── scenarios.py             # scenario_returns(), annualised_return(), CASH constant
 │   ├── regimes.py               # moving_average_regime(), regime_performance(), outlier_regime_counts()
-│   └── statistics.py            # Statistical tests (chi-sq, z-test, KS, JB, bootstrap, Sharpe, drawdown, backtest)
+│   ├── statistics.py            # Statistical tests (chi-sq, z-test, KS, JB, bootstrap, Sharpe, drawdown, backtest)
+│   └── periods.py               # split_returns_by_date(), period_cagr_matrix(), period_claim_summary(), multi_index_summary()
 ├── visualization/
 │   └── plots.py                 # plot_returns_time_series(), plot_returns_histogram(), plot_returns_by_regime(), make_plots()
 └── io/
     └── writers.py               # save_dataframe()
+```
+
+### API Endpoints: `api/`
+
+```
+GET /api/health                       # Health check
+GET /api/tickers                      # List available tickers
+GET /api/analysis/{ticker}            # Run outlier analysis
+GET /api/validation/{ticker}          # Run full 4-claim validation
+GET /api/chart-data/{ticker}          # Chart-ready data for frontend
+GET /api/period-comparison/{ticker}   # Pre/post-publication claim comparison
+GET /api/cagr-matrix/{ticker}         # CAGR scenario matrix across periods
+GET /api/multi-index                  # Split-period analysis across all 12 indices
+```
+
+### Frontend: `frontend/`
+
+```
+frontend/src/
+├── pages/
+│   ├── Landing.jsx              # Thesis verdict with key statistics
+│   ├── PeriodComparison.jsx     # Pre/post-2011 claims analysis
+│   ├── MultiIndex.jsx           # 12 global indices comparison
+│   └── CagrResearch.jsx         # Interactive scenario analysis
+├── components/                  # Reusable chart and UI components
+└── services/api.js              # API client with fetchWithFallback
 ```
 
 ### Legacy Wrapper: `src/validate_outliers.py`
@@ -126,7 +163,7 @@ Re-exports all public names from the package for backward compatibility. Delegat
 - **PEP8** conventions
 - Type annotations on function signatures
 - Docstrings on all public functions
-- 68 tests with pytest (100% coverage on core analysis modules)
+- 197 tests with pytest (88% overall coverage)
 
 ## Testing
 
@@ -141,6 +178,9 @@ Test files mirror the package structure:
 - `tests/test_regimes.py` — regime classification and performance
 - `tests/test_statistics.py` — all statistical tests
 - `tests/test_loaders.py` — data loading and caching
+- `tests/test_periods.py` — split-period analysis and multi-index
+- `tests/test_validate_claims.py` — full validation orchestrator
+- `tests/test_cli.py` — CLI entry point
 - `tests/conftest.py` — shared fixtures with synthetic data
 
 ## Key Documents

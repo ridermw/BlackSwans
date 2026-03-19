@@ -8,7 +8,7 @@ The Black Swans project is a comprehensive financial analysis platform that vali
 2. **FastAPI Backend** (`api/`) — REST API for analysis and validation
 3. **React Frontend** (`frontend/`) — Interactive dashboard with Plotly charts
 
-**Current Version:** 0.2.0 | **Data Coverage:** 12 indices through Dec 31, 2010 | **Status:** Production Ready
+**Current Version:** 0.3.0 | **Data Coverage:** 12 indices through Jan 31, 2025 | **Status:** Production Ready
 
 ---
 
@@ -17,9 +17,11 @@ The Black Swans project is a comprehensive financial analysis platform that vali
 ```
 ┌─────────────────────────────────────────┐
 │         React Dashboard (frontend/)      │
-│  ├─ Overview Page (/) — 4 Faber Claims  │
-│  ├─ Analysis Page (/analysis/:ticker)   │
-│  └─ 6 Components + Plotly Charts        │
+│  ├─ Landing Page (/) — Thesis Verdict   │
+│  ├─ Period Comparison (/periods)        │
+│  ├─ Multi-Index (/multi-index)          │
+│  ├─ CAGR Research (/cagr)              │
+│  └─ Analysis Page (/analysis/:ticker)   │
 └────────────────┬────────────────────────┘
                  │ HTTP (fetch) / Static JSON
                  ↓
@@ -29,7 +31,10 @@ The Black Swans project is a comprehensive financial analysis platform that vali
 │  ├─ /api/tickers — Available tickers    │
 │  ├─ /api/analysis/{ticker} — Run        │
 │  ├─ /api/validation/{ticker} — Validate │
-│  └─ /api/chart-data/{ticker} — Charts   │
+│  ├─ /api/chart-data/{ticker} — Charts   │
+│  ├─ /api/period-comparison/{ticker}     │
+│  ├─ /api/cagr-matrix/{ticker}           │
+│  └─ /api/multi-index                    │
 └────────────────┬────────────────────────┘
                  │ Python imports
                  ↓
@@ -47,7 +52,7 @@ The Black Swans project is a comprehensive financial analysis platform that vali
 
 ## Core Package Architecture: `src/blackswans/`
 
-### Module Structure (7 modules)
+### Module Structure (8 modules)
 
 ```
 src/blackswans/
@@ -65,7 +70,8 @@ src/blackswans/
 │   ├── outliers.py              # calculate_outlier_stats()
 │   ├── scenarios.py             # scenario_returns(), annualised_return()
 │   ├── regimes.py               # moving_average_regime(), regime_performance()
-│   └── statistics.py            # Statistical tests (7 functions)
+│   ├── statistics.py            # Statistical tests (7 functions)
+│   └── periods.py               # Split-period analysis (pre/post-publication)
 │
 ├── visualization/
 │   ├── __init__.py
@@ -276,6 +282,9 @@ Provides REST API endpoints for programmatic access to analysis and validation f
 | `/api/analysis/{ticker}` | GET | Run outlier analysis with optional parameters |
 | `/api/validation/{ticker}` | GET | Run full 4-claim validation |
 | `/api/chart-data/{ticker}` | GET | Chart-ready data for frontend visualizations |
+| `/api/period-comparison/{ticker}` | GET | Compare Faber's 4 claims across pre/post/full periods |
+| `/api/cagr-matrix/{ticker}` | GET | CAGR scenario matrix: miss best/worst N days across periods |
+| `/api/multi-index` | GET | Split-period analysis across all 12 indices |
 
 ### Analysis Endpoint Parameters
 - `start` (string, optional): Start date (YYYY-MM-DD), defaults to data file start
@@ -335,15 +344,26 @@ Interactive dashboard for exploring analysis results and validating Faber's clai
 - **HTTP Client:** Browser fetch() API
 - **CSS:** Custom stylesheets with financial theme
 
-### Pages (2)
+### Pages (5)
 
-#### 1. Overview Page (`/`)
-- Summary of all 4 Faber claims from the paper
-- Displays validation verdict (CONFIRMED/DISPROVEN) for each claim
-- Shows key evidence supporting each verdict
-- Component: ClaimCard (6 instances, one per major result)
+#### 1. Landing Page (`/`)
+- Thesis verdict with key statistics
+- Displays validation verdicts for all 4 Faber claims
+- Key evidence summaries
 
-#### 2. Analysis Page (`/analysis/:ticker`)
+#### 2. Period Comparison Page (`/periods`)
+- Pre/post-2011 analysis of all 4 claims
+- Shows whether findings held after publication
+
+#### 3. Multi-Index Page (`/multi-index`)
+- 12 global indices compared in sortable table
+- Per-index verdicts for all claims
+
+#### 4. CAGR Research Page (`/cagr`)
+- Interactive scenario analysis
+- Waterfall charts showing impact of missing best/worst N days
+
+#### 5. Analysis Page (`/analysis/:ticker`)
 - Detailed analysis for selected market index
 - MarketSelector dropdown to choose from 12 available tickers
 - Four interactive Plotly charts showing different analysis aspects

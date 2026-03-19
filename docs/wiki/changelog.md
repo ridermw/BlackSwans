@@ -234,26 +234,27 @@ npm run build     # Production build
 ## Architecture Summary (Current)
 
 ### Package: `src/blackswans/`
-- **Version:** 0.2.0
-- **CLI:** `blackswans --ticker ^GSPC --start 1928-09-01 --end 2010-12-31 --output-dir output/`
-- **7 Core Modules** with clear separation of concerns
-- **68 Tests** with 100% coverage on analysis modules
+- **Version:** 0.3.0
+- **CLI:** `blackswans --ticker ^GSPC --start 1928-09-01 --end 2025-01-31 --output-dir output/`
+- **8 Core Modules** with clear separation of concerns (including `periods.py`)
+- **197 Tests** with 88% overall coverage
 
 ### Backend: FastAPI (`api/`)
-- **5 REST Endpoints** for analysis and validation
+- **8 REST Endpoints** for analysis, validation, period comparison, CAGR matrix, and multi-index
 - **Pydantic Models** for type safety
 - **12 Tickers** with auto-parsed date ranges
 
 ### Frontend: React (`frontend/`)
-- **2 Pages** (Overview, Analysis)
-- **6 Reusable Components** with Plotly charts
-- **Mock Data Fallback** for offline development
+- **5 Pages** (Landing, Period Comparison, Multi-Index, CAGR Research, Analysis)
+- **Dark-themed Professional UI** with Plotly charts
+- **fetchWithFallback** pattern for API/static JSON/mock data
 - **Built with Vite** for fast development
 
 ### Testing
-- **68 Tests** across 6 modules
-- **100% Coverage** on core analysis (`src/blackswans/analysis/`, `data/`)
-- **No API/Frontend Tests** yet
+- **197 Tests** across 9+ modules
+- **88% Overall Coverage**
+- **Key improvements:** validate_claims (81%), cli (98%), loaders (94%), periods (99%)
+- **Playwright E2E specs** for frontend
 
 ---
 
@@ -278,4 +279,12 @@ npm run build     # Production build
 - Security fixes for path injection vulnerabilities
 - GitHub Actions CI/CD with automated wiki sync
 
-**Next Priority:** Update historical data through 2025 and add API/frontend test coverage
+### v0.3.0 (2025-03-19) — Interactive Dashboard
+- Complete dark-themed professional frontend with 5 pages
+- Split-period analysis module (`periods.py`) for pre/post-publication comparison
+- 3 new API endpoints: period-comparison, cagr-matrix, multi-index
+- Static JSON generation for GitHub Pages deployment
+- 129 new tests (197 total), coverage boost from 58% to 88%
+- Playwright E2E test specifications
+
+**Next Priority:** Expand E2E test coverage, add more interactive analysis features
