@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchPeriodComparison, fetchMultiIndex } from '../services/api';
+import { fetchPeriodComparison, fetchMultiIndex, fetchValidationStatus } from '../services/api';
 import './Landing.css';
 
 const STAT_CARDS = [
@@ -75,6 +75,7 @@ const computeOverallVerdict = (periods) => {
 const Landing = () => {
   const [periodData, setPeriodData] = useState(null);
   const [multiIndexData, setMultiIndexData] = useState(null);
+  const [validationStatus, setValidationStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -82,12 +83,14 @@ const Landing = () => {
     try {
       setLoading(true);
       setError(null);
-      const [periodResp, multiResp] = await Promise.all([
+      const [periodResp, multiResp, statusResp] = await Promise.all([
         fetchPeriodComparison('sp500'),
         fetchMultiIndex(),
+        fetchValidationStatus(),
       ]);
       setPeriodData(periodResp);
       setMultiIndexData(multiResp);
+      setValidationStatus(statusResp);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -153,6 +156,15 @@ const Landing = () => {
               ? 'All Four Claims Confirmed'
               : 'Results Mixed — See Details'}
           </div>
+        )}
+
+        {validationStatus?.last_run && (
+          <p className="last-validated">
+            Last validated:{' '}
+            {new Date(validationStatus.last_run).toLocaleDateString('en-US', {
+              year: 'numeric', month: 'long', day: 'numeric',
+            })}
+          </p>
         )}
       </section>
 

@@ -17,6 +17,7 @@ import pandas as pd
 
 from blackswans.data.loaders import load_price_csv
 from blackswans.data.transforms import compute_daily_returns
+from blackswans.data.tickers import get_all_csvs
 from blackswans.analysis.periods import (
     period_claim_summary,
     period_cagr_matrix,
@@ -34,20 +35,10 @@ logger = logging.getLogger(__name__)
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 
-# API ticker codes matching api/main.py
+# Build API ticker mapping dynamically from the shared registry
 API_TICKER_MAP = {
-    "sp500": ("^GSPC", "_GSPC_1928-09-04_to_2025-01-31.csv"),
-    "nikkei": ("^N225", "_N225_1970-01-05_to_2025-01-31.csv"),
-    "ftse": ("^FTSE", "_FTSE_1984-01-03_to_2025-01-31.csv"),
-    "dax": ("^GDAXI", "_GDAXI_1987-12-30_to_2025-01-31.csv"),
-    "cac": ("^FCHI", "_FCHI_1990-03-01_to_2025-01-31.csv"),
-    "asx": ("^AXJO", "_AXJO_1992-11-23_to_2025-01-31.csv"),
-    "tsx": ("^GSPTSE", "_GSPTSE_1979-06-29_to_2025-01-31.csv"),
-    "hsi": ("^HSI", "_HSI_1986-12-31_to_2025-01-28.csv"),
-    "efa": ("EFA", "EFA_2001-08-27_to_2025-01-31.csv"),
-    "eem": ("EEM", "EEM_2003-04-14_to_2025-01-31.csv"),
-    "reit": ("VNQ", "VNQ_2004-09-29_to_2025-01-31.csv"),
-    "bonds": ("AGG", "AGG_2003-09-29_to_2025-01-31.csv"),
+    code: (sym, csv_path.name)
+    for code, (sym, csv_path, _s, _e) in get_all_csvs(DATA_DIR).items()
 }
 
 SPLIT_DATE = "2011-01-01"
@@ -179,6 +170,13 @@ def main():
     # Multi-index
     logger.info("Generating multi-index.json...")
     generate_multi_index(output_dir)
+
+    # Copy validation_status.json if it exists
+    status_src = DATA_DIR / "validation_status.json"
+    if status_src.exists():
+        import shutil
+        shutil.copy2(status_src, output_dir / "validation_status.json")
+        logger.info("Copied validation_status.json to output")
 
     logger.info("Done! Static data generated.")
 
