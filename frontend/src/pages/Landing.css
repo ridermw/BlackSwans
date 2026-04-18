@@ -67,6 +67,13 @@
   font-size: 22px;
 }
 
+.last-validated {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #7a8ba8;
+  letter-spacing: 0.5px;
+}
+
 /* ── Key Numbers ──────────────────────────────────── */
 
 .key-numbers {

@@ -49,9 +49,19 @@ python -m blackswans.validate_claims \
 ### Running Tests
 
 ```bash
-pytest tests/ -v                                    # 197 tests
-pytest tests/ -v --cov=src/blackswans              # with coverage (88%)
+pytest tests/ -v                                    # 220 tests
+pytest tests/ -v --cov=src/blackswans              # with coverage
 ```
+
+### Refreshing Data & Re-validating
+
+```bash
+python scripts/refresh_and_validate.py                  # data refresh only
+python scripts/refresh_and_validate.py --validate       # data + full validation
+python scripts/refresh_and_validate.py --dry-run        # preview only
+```
+
+This is also run automatically by `.github/workflows/refresh-data.yml` (weekly data refresh, monthly validation).
 
 **Key parameters for CLI:**
 - `--ticker`: Yahoo Finance ticker symbol (e.g., `^GSPC` for S&P 500)
@@ -76,7 +86,8 @@ src/blackswans/
 ├── validate_claims.py           # Full 4-claim validation orchestrator
 ├── data/
 │   ├── loaders.py               # fetch_price_data(), _load_csv()
-│   └── transforms.py            # compute_daily_returns()
+│   ├── transforms.py            # compute_daily_returns()
+│   └── tickers.py               # TICKER_REGISTRY, find_csv(), get_all_csvs() — shared ticker config
 ├── analysis/
 │   ├── outliers.py              # OutlierStats dataclass, calculate_outlier_stats()
 │   ├── scenarios.py             # scenario_returns(), annualised_return(), CASH constant

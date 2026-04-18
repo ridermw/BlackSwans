@@ -91,6 +91,25 @@ python scripts/generate_static_data.py
 cd frontend && npm run build
 ```
 
+## Living Repo — Automated Data Refresh
+
+This repo automatically stays current via a GitHub Actions workflow:
+
+| Schedule | What happens |
+|----------|-------------|
+| **Weekly** (Monday 6am UTC) | Downloads latest market data for all 12 indices |
+| **Monthly** (1st of month 6am UTC) | Downloads data + runs full 4-claim validation |
+| **Manual** | Trigger via Actions tab with optional validation |
+
+After each run, the workflow commits updated CSVs and a timestamped `VALIDATION_STATUS.md` back to `main`, which triggers a GitHub Pages redeploy.
+
+```bash
+# Run locally
+python scripts/refresh_and_validate.py                  # data refresh only
+python scripts/refresh_and_validate.py --validate       # data + full validation
+python scripts/refresh_and_validate.py --dry-run        # preview only
+```
+
 ## Project Structure
 
 ```

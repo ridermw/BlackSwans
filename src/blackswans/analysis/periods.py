@@ -25,6 +25,7 @@ from .statistics import (
 )
 from ..data.loaders import load_price_csv
 from ..data.transforms import compute_daily_returns
+from ..data.tickers import get_periods_ticker_map
 
 logger = logging.getLogger(__name__)
 
@@ -34,81 +35,9 @@ PERIOD_LABELS = {
     "full": "Full Period",
 }
 
-# Hardcoded ticker map matching the 12 CSV files in data/
-TICKER_MAP = {
-    "SP500": {
-        "file": "_GSPC_1928-09-04_to_2025-01-31.csv",
-        "name": "S&P 500",
-        "start": "1928-09-04",
-        "end": "2025-01-31",
-    },
-    "NIKKEI": {
-        "file": "_N225_1970-01-05_to_2025-01-31.csv",
-        "name": "Nikkei 225",
-        "start": "1970-01-05",
-        "end": "2025-01-31",
-    },
-    "FTSE": {
-        "file": "_FTSE_1984-01-03_to_2025-01-31.csv",
-        "name": "FTSE 100",
-        "start": "1984-01-03",
-        "end": "2025-01-31",
-    },
-    "DAX": {
-        "file": "_GDAXI_1987-12-30_to_2025-01-31.csv",
-        "name": "DAX",
-        "start": "1987-12-30",
-        "end": "2025-01-31",
-    },
-    "CAC40": {
-        "file": "_FCHI_1990-03-01_to_2025-01-31.csv",
-        "name": "CAC 40",
-        "start": "1990-03-01",
-        "end": "2025-01-31",
-    },
-    "ASX200": {
-        "file": "_AXJO_1992-11-23_to_2025-01-31.csv",
-        "name": "ASX 200",
-        "start": "1992-11-23",
-        "end": "2025-01-31",
-    },
-    "TSX": {
-        "file": "_GSPTSE_1979-06-29_to_2025-01-31.csv",
-        "name": "TSX Composite",
-        "start": "1979-06-29",
-        "end": "2025-01-31",
-    },
-    "HANGSENG": {
-        "file": "_HSI_1986-12-31_to_2025-01-28.csv",
-        "name": "Hang Seng",
-        "start": "1986-12-31",
-        "end": "2025-01-28",
-    },
-    "EAFE": {
-        "file": "EFA_2001-08-27_to_2025-01-31.csv",
-        "name": "MSCI EAFE",
-        "start": "2001-08-27",
-        "end": "2025-01-31",
-    },
-    "EM": {
-        "file": "EEM_2003-04-14_to_2025-01-31.csv",
-        "name": "MSCI EM",
-        "start": "2003-04-14",
-        "end": "2025-01-31",
-    },
-    "REITS": {
-        "file": "VNQ_2004-09-29_to_2025-01-31.csv",
-        "name": "REITs (VNQ)",
-        "start": "2004-09-29",
-        "end": "2025-01-31",
-    },
-    "BONDS": {
-        "file": "AGG_2003-09-29_to_2025-01-31.csv",
-        "name": "US Bonds (AGG)",
-        "start": "2003-09-29",
-        "end": "2025-01-31",
-    },
-}
+# Dynamic ticker map built from the shared registry + on-disk CSVs.
+# Lazy-initialised on first access via get_periods_ticker_map().
+TICKER_MAP = get_periods_ticker_map()
 
 
 def split_returns_by_date(
