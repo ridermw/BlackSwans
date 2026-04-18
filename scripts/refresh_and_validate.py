@@ -79,8 +79,6 @@ def refresh_data(dry_run: bool = False) -> Dict[str, dict]:
     for code, info in TICKER_REGISTRY.items():
         symbol = info["symbol"]
         start = info["start"]
-        new_name = csv_filename(code, today)
-        new_path = DATA_DIR / new_name
 
         # Find existing CSV (if any)
         old_path = find_csv(code, DATA_DIR)
@@ -90,7 +88,8 @@ def refresh_data(dry_run: bool = False) -> Dict[str, dict]:
         if dry_run:
             results[code] = {
                 "symbol": symbol, "old_file": old_name,
-                "new_file": new_name, "rows": 0, "start": start, "end": today,
+                "new_file": csv_filename(code, today), "rows": 0,
+                "start": start, "end": today,
             }
             continue
 
@@ -117,14 +116,18 @@ def refresh_data(dry_run: bool = False) -> Dict[str, dict]:
 
         data.index.name = "Date"
 
+        # Name file using the actual last trading day, not today
+        actual_end = data.index.max().strftime("%Y-%m-%d")
+        new_name = csv_filename(code, actual_end)
+        new_path = DATA_DIR / new_name
+
         # Remove old CSV if the name changed
         if old_path and old_path != new_path and old_path.exists():
             logger.info(f"[{code}] Removing old file: {old_name}")
             old_path.unlink()
 
         data.to_csv(new_path)
-        actual_end = data.index.max().strftime("%Y-%m-%d")
-        logger.info(f"[{code}] Saved {len(data)} rows → {new_name} (through {actual_end})")
+        logger.info(f"[{code}] Saved {len(data)} rows → {new_name}")
 
         results[code] = {
             "symbol": symbol,
