@@ -30,19 +30,19 @@ cd api && uvicorn main:app --reload
 
 ```bash
 # Package CLI
-blackswans --ticker ^GSPC --start 1928-09-04 --end 2025-01-31 \
-  --csv data/_GSPC_1928-09-04_to_2025-01-31.csv --output-dir output/sp500
+blackswans --ticker ^GSPC --start 1928-09-04 --end 2026-05-22 \
+  --csv data/_GSPC_1928-09-04_to_2026-05-22.csv --output-dir output/sp500
 
 # Legacy wrapper (backward compatible)
-python src/validate_outliers.py --ticker ^GSPC --start 1928-09-04 --end 2025-01-31
+python src/validate_outliers.py --ticker ^GSPC --start 1928-09-04 --end 2026-05-22
 ```
 
 ### Running Full Validation (all 4 claims)
 
 ```bash
 python -m blackswans.validate_claims \
-  --csv data/_GSPC_1928-09-04_to_2025-01-31.csv \
-  --ticker ^GSPC --start 1928-09-04 --end 2025-01-31 \
+  --csv data/_GSPC_1928-09-04_to_2026-05-22.csv \
+  --ticker ^GSPC --start 1928-09-04 --end 2026-05-22 \
   --output-dir output/validation
 ```
 

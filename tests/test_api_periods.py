@@ -3,12 +3,13 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from api.main import app, DATA_DIR
+from api.main import app
+from blackswans.data.tickers import find_csv
 
 client = TestClient(app)
 
 # Check if real data files exist for integration tests
-HAS_DATA = (DATA_DIR / "_GSPC_1928-09-04_to_2025-01-31.csv").exists()
+HAS_DATA = find_csv("sp500") is not None
 skip_no_data = pytest.mark.skipif(not HAS_DATA, reason="No CSV data files present")
 
 

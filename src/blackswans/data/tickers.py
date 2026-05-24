@@ -5,6 +5,7 @@ Other modules should import from here rather than maintaining their own
 ticker maps.
 """
 
+from datetime import date
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -41,6 +42,11 @@ def _sanitize_symbol(symbol: str) -> str:
     return symbol.replace("^", "_")
 
 
+def _parse_end_date_from_filename(filename: str) -> date:
+    """Parse and validate the end-date portion from a data CSV filename."""
+    return date.fromisoformat(_end_date_from_filename(filename))
+
+
 def find_csv(ticker_code: str, data_dir: Optional[Path] = None) -> Optional[Path]:
     """Find the CSV data file for *ticker_code* by globbing *data_dir*.
 
@@ -55,13 +61,20 @@ def find_csv(ticker_code: str, data_dir: Optional[Path] = None) -> Optional[Path
     prefix = _sanitize_symbol(info["symbol"])
     start = info["start"]
     # Pattern: {prefix}_{start}_to_*.csv  (e.g. _GSPC_1928-09-04_to_*.csv)
-    matches = sorted(data_dir.glob(f"{prefix}_{start}_to_*.csv"))
-    return matches[-1] if matches else None
+    dated_matches = []
+    for match in data_dir.glob(f"{prefix}_{start}_to_*.csv"):
+        try:
+            dated_matches.append((_parse_end_date_from_filename(match.name), match))
+        except ValueError:
+            continue
+    if not dated_matches:
+        return None
+    return max(dated_matches, key=lambda item: item[0])[1]
 
 
 def _end_date_from_filename(filename: str) -> str:
     """Extract the end-date portion from a data CSV filename."""
-    # e.g. "_GSPC_1928-09-04_to_2025-01-31.csv" → "2025-01-31"
+    # e.g. "_GSPC_1928-09-04_to_2026-05-22.csv" -> "2026-05-22"
     return filename.replace(".csv", "").rsplit("_to_", 1)[-1]
 
 

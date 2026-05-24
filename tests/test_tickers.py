@@ -76,6 +76,12 @@ class TestFindCsv:
         result = find_csv("sp500", tmp_path)
         assert result.name == "_GSPC_1928-09-04_to_2026-04-01.csv"
 
+    def test_find_csv_ignores_malformed_end_dates(self, tmp_path):
+        (tmp_path / "_GSPC_1928-09-04_to_not-a-date.csv").touch()
+        (tmp_path / "_GSPC_1928-09-04_to_2026-04-01.csv").touch()
+        result = find_csv("sp500", tmp_path)
+        assert result.name == "_GSPC_1928-09-04_to_2026-04-01.csv"
+
     def test_find_csv_missing_returns_none(self, tmp_path):
         assert find_csv("sp500", tmp_path) is None
 

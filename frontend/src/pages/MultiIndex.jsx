@@ -9,7 +9,7 @@ const pct = (v) => (v != null ? `${(v * 100).toFixed(1)}%` : '—');
 /** Format drawdown (already negative decimal) as a percentage */
 const ddPct = (v) => (v != null ? `${(v * 100).toFixed(0)}%` : '—');
 
-/** Derive period string from start_date / end_date (e.g. "1928–2025") */
+/** Derive period string from start_date / end_date (e.g. "1928–2026") */
 const periodLabel = (start, end) => {
   if (!start || !end) return '—';
   return `${start.slice(0, 4)}–${end.slice(0, 4)}`;

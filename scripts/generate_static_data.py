@@ -17,7 +17,7 @@ import pandas as pd
 
 from blackswans.data.loaders import load_price_csv
 from blackswans.data.transforms import compute_daily_returns
-from blackswans.data.tickers import get_all_csvs
+from blackswans.data.tickers import TICKER_REGISTRY, get_all_csvs
 from blackswans.analysis.periods import (
     period_claim_summary,
     period_cagr_matrix,
@@ -34,12 +34,6 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 DATA_DIR = Path(__file__).parent.parent / "data"
-
-# Build API ticker mapping dynamically from the shared registry
-API_TICKER_MAP = {
-    code: (sym, csv_path.name)
-    for code, (sym, csv_path, _s, _e) in get_all_csvs(DATA_DIR).items()
-}
 
 SPLIT_DATE = "2011-01-01"
 
@@ -64,13 +58,24 @@ def save_json(data, path):
     logger.info(f"  → {path}")
 
 
-def generate_tickers(output_dir):
+def _required_api_ticker_map():
+    all_csvs = get_all_csvs(DATA_DIR)
+    missing = sorted(set(TICKER_REGISTRY) - set(all_csvs))
+    if missing:
+        raise RuntimeError(f"Missing CSV data for expected tickers: {', '.join(missing)}")
+    return {
+        code: (sym, csv_path.name)
+        for code, (sym, csv_path, _start, _end) in all_csvs.items()
+    }
+
+
+def generate_tickers(output_dir, api_ticker_map):
     """Generate tickers.json."""
     tickers = []
-    for code, (symbol, filename) in API_TICKER_MAP.items():
+    for code, (symbol, filename) in api_ticker_map.items():
         filepath = DATA_DIR / filename
         if not filepath.exists():
-            continue
+            raise FileNotFoundError(f"Missing CSV for {code}: {filepath}")
         parts = filename.replace(".csv", "").split("_")
         start_date = parts[-3] if len(parts) >= 4 else "unknown"
         end_date = parts[-1] if len(parts) >= 4 else "unknown"
@@ -146,14 +151,14 @@ def main():
 
     # Tickers list
     logger.info("Generating tickers.json...")
-    generate_tickers(output_dir)
+    api_ticker_map = _required_api_ticker_map()
+    generate_tickers(output_dir, api_ticker_map)
 
     # Per-ticker data
-    for ticker_code, (symbol, filename) in API_TICKER_MAP.items():
+    for ticker_code, (symbol, filename) in api_ticker_map.items():
         filepath = DATA_DIR / filename
         if not filepath.exists():
-            logger.warning(f"Skipping {ticker_code}: {filepath} not found")
-            continue
+            raise FileNotFoundError(f"Missing CSV for {ticker_code}: {filepath}")
 
         logger.info(f"Processing {ticker_code} ({symbol})...")
         parts = filename.replace(".csv", "").split("_")

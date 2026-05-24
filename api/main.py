@@ -11,7 +11,7 @@ import numpy as np
 
 from blackswans.data.loaders import load_price_csv
 from blackswans.data.transforms import compute_daily_returns
-from blackswans.data.tickers import get_all_csvs, TICKER_REGISTRY
+from blackswans.data.tickers import TICKER_REGISTRY, get_all_csvs
 from blackswans.sanitize import sanitize_ticker
 from blackswans.analysis.outliers import calculate_outlier_stats
 from blackswans.analysis.scenarios import scenario_returns, annualised_return
@@ -93,30 +93,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Dynamic ticker mapping from shared registry
 DATA_DIR = Path(__file__).parent.parent / "data"
-
-def _build_ticker_map():
-    """Build {code: (symbol, filename)} from the shared ticker registry."""
-    all_csvs = get_all_csvs(DATA_DIR)
-    return {code: (sym, csv_path.name) for code, (sym, csv_path, _s, _e) in all_csvs.items()}
-
-TICKER_MAP = _build_ticker_map()
 
 
 def get_ticker_info(ticker_code: str) -> TickerInfo:
     """Get ticker information from the mapping."""
-    if ticker_code not in TICKER_MAP:
+    all_csvs = get_all_csvs(DATA_DIR)
+    if ticker_code not in TICKER_REGISTRY:
         raise HTTPException(
             status_code=404,
-            detail=f"Ticker '{ticker_code}' not found. Available: {list(TICKER_MAP.keys())}",
+            detail=f"Ticker '{ticker_code}' not found. Available: {list(TICKER_REGISTRY.keys())}",
+        )
+    if ticker_code not in all_csvs:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Data file not found for ticker '{ticker_code}'",
         )
 
-    symbol, filename = TICKER_MAP[ticker_code]
-    filepath = (DATA_DIR / filename).resolve()
+    symbol, filepath, start_date, end_date = all_csvs[ticker_code]
+    filepath = filepath.resolve()
 
     # Validate the resolved path stays within the data directory
-    if not str(filepath).startswith(str(DATA_DIR.resolve())):
+    try:
+        filepath.relative_to(DATA_DIR.resolve())
+    except ValueError:
         raise HTTPException(
             status_code=400,
             detail="Invalid data file path",
@@ -127,11 +127,6 @@ def get_ticker_info(ticker_code: str) -> TickerInfo:
             status_code=404,
             detail=f"Data file not found for ticker '{ticker_code}'",
         )
-
-    # Parse dates from filename
-    parts = filename.replace(".csv", "").split("_")
-    start_date = parts[-3]
-    end_date = parts[-1]
 
     return TickerInfo(
         ticker_code=ticker_code,
@@ -152,7 +147,7 @@ async def health_check():
 async def list_tickers():
     """List all available tickers with their data files."""
     tickers = []
-    for code in TICKER_MAP.keys():
+    for code in TICKER_REGISTRY.keys():
         try:
             info = get_ticker_info(code)
             tickers.append(info)

@@ -8,7 +8,7 @@ The Black Swans project is a comprehensive financial analysis platform that vali
 2. **FastAPI Backend** (`api/`) — REST API for analysis and validation
 3. **React Frontend** (`frontend/`) — Interactive dashboard with Plotly charts
 
-**Current Version:** 0.3.0 | **Data Coverage:** 12 indices through Jan 31, 2025 | **Status:** Production Ready
+**Current Version:** 0.3.0 | **Data Coverage:** 12 indices through May 22, 2026 | **Status:** Production Ready
 
 ---
 

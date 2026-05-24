@@ -115,6 +115,17 @@ def _claim_summary_for_period(
     trend_following sub-dicts plus metadata.
     """
     n = len(returns)
+    if n == 0:
+        return {
+            "n_trading_days": 0,
+            "start_date": None,
+            "end_date": None,
+            "fat_tails": {"verdict": "INSUFFICIENT DATA"},
+            "outsized_influence": {"verdict": "INSUFFICIENT DATA"},
+            "clustering": {"verdict": "INSUFFICIENT DATA"},
+            "trend_following": {"verdict": "INSUFFICIENT DATA"},
+        }
+
     result = {
         "n_trading_days": n,
         "start_date": str(returns.index.min().date()),

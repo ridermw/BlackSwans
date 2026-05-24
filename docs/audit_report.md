@@ -81,7 +81,7 @@ The existing `src/validate_outliers.py` script is **functional and reproducible*
 
 ### Extended Date Range:
 - Paper covers 1928-2010
-- Current outputs use 1928-2025 (extended without documentation)
+- At audit time, outputs used 1928-2025 (extended without documentation)
 - Should maintain separate "replication" (1928-2010) and "extension" (2010-2025) runs
 
 **Conclusion**: Core methodology is correctly implemented. The regime CAGR bug must be fixed. Scenario analysis should be extended to cover quantile-based counts.

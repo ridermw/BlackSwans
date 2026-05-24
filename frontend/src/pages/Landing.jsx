@@ -142,7 +142,7 @@ const Landing = () => {
         <h1>Does Faber's Black Swans Thesis Still&nbsp;Work?</h1>
         <p className="hero-subtitle">
           Rigorous statistical validation across {indexCount} global indices,
-          1928–2025
+          1928–2026
         </p>
 
         {overallVerdict && (

@@ -243,4 +243,4 @@ See `docs/validation_report.md` for complete evidence and results.
 3. **Cost Analysis:** Model realistic transaction costs for regime switching
 4. **Machine Learning:** Alternative regime classification methods (e.g., HMM, GARCH)
 5. **Multivariate:** Correlations across international indices
-6. **Data Update:** Extend historical data from 2010 to 2025
+6. **Data Update:** Keep historical data current with the guarded refresh pipeline

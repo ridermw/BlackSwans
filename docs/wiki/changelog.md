@@ -235,7 +235,7 @@ npm run build     # Production build
 
 ### Package: `src/blackswans/`
 - **Version:** 0.3.0
-- **CLI:** `blackswans --ticker ^GSPC --start 1928-09-01 --end 2025-01-31 --output-dir output/`
+- **CLI:** `blackswans --ticker ^GSPC --start 1928-09-01 --end <current-data-end> --output-dir output/`
 - **8 Core Modules** with clear separation of concerns (including `periods.py`)
 - **197 Tests** with 88% overall coverage
 
