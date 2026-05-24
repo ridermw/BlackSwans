@@ -17,6 +17,7 @@ import pandas as pd
 
 from blackswans.data.loaders import load_price_csv
 from blackswans.data.transforms import compute_daily_returns
+from blackswans.data.tickers import TICKER_REGISTRY, get_all_csvs
 from blackswans.analysis.periods import (
     period_claim_summary,
     period_cagr_matrix,
@@ -33,22 +34,6 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 DATA_DIR = Path(__file__).parent.parent / "data"
-
-# API ticker codes matching api/main.py
-API_TICKER_MAP = {
-    "sp500": ("^GSPC", "_GSPC_1928-09-04_to_2025-01-31.csv"),
-    "nikkei": ("^N225", "_N225_1970-01-05_to_2025-01-31.csv"),
-    "ftse": ("^FTSE", "_FTSE_1984-01-03_to_2025-01-31.csv"),
-    "dax": ("^GDAXI", "_GDAXI_1987-12-30_to_2025-01-31.csv"),
-    "cac": ("^FCHI", "_FCHI_1990-03-01_to_2025-01-31.csv"),
-    "asx": ("^AXJO", "_AXJO_1992-11-23_to_2025-01-31.csv"),
-    "tsx": ("^GSPTSE", "_GSPTSE_1979-06-29_to_2025-01-31.csv"),
-    "hsi": ("^HSI", "_HSI_1986-12-31_to_2025-01-28.csv"),
-    "efa": ("EFA", "EFA_2001-08-27_to_2025-01-31.csv"),
-    "eem": ("EEM", "EEM_2003-04-14_to_2025-01-31.csv"),
-    "reit": ("VNQ", "VNQ_2004-09-29_to_2025-01-31.csv"),
-    "bonds": ("AGG", "AGG_2003-09-29_to_2025-01-31.csv"),
-}
 
 SPLIT_DATE = "2011-01-01"
 
@@ -73,13 +58,24 @@ def save_json(data, path):
     logger.info(f"  → {path}")
 
 
-def generate_tickers(output_dir):
+def _required_api_ticker_map():
+    all_csvs = get_all_csvs(DATA_DIR)
+    missing = sorted(set(TICKER_REGISTRY) - set(all_csvs))
+    if missing:
+        raise RuntimeError(f"Missing CSV data for expected tickers: {', '.join(missing)}")
+    return {
+        code: (sym, csv_path.name)
+        for code, (sym, csv_path, _start, _end) in all_csvs.items()
+    }
+
+
+def generate_tickers(output_dir, api_ticker_map):
     """Generate tickers.json."""
     tickers = []
-    for code, (symbol, filename) in API_TICKER_MAP.items():
+    for code, (symbol, filename) in api_ticker_map.items():
         filepath = DATA_DIR / filename
         if not filepath.exists():
-            continue
+            raise FileNotFoundError(f"Missing CSV for {code}: {filepath}")
         parts = filename.replace(".csv", "").split("_")
         start_date = parts[-3] if len(parts) >= 4 else "unknown"
         end_date = parts[-1] if len(parts) >= 4 else "unknown"
@@ -155,14 +151,14 @@ def main():
 
     # Tickers list
     logger.info("Generating tickers.json...")
-    generate_tickers(output_dir)
+    api_ticker_map = _required_api_ticker_map()
+    generate_tickers(output_dir, api_ticker_map)
 
     # Per-ticker data
-    for ticker_code, (symbol, filename) in API_TICKER_MAP.items():
+    for ticker_code, (symbol, filename) in api_ticker_map.items():
         filepath = DATA_DIR / filename
         if not filepath.exists():
-            logger.warning(f"Skipping {ticker_code}: {filepath} not found")
-            continue
+            raise FileNotFoundError(f"Missing CSV for {ticker_code}: {filepath}")
 
         logger.info(f"Processing {ticker_code} ({symbol})...")
         parts = filename.replace(".csv", "").split("_")
@@ -179,6 +175,13 @@ def main():
     # Multi-index
     logger.info("Generating multi-index.json...")
     generate_multi_index(output_dir)
+
+    # Copy validation_status.json if it exists
+    status_src = DATA_DIR / "validation_status.json"
+    if status_src.exists():
+        import shutil
+        shutil.copy2(status_src, output_dir / "validation_status.json")
+        logger.info("Copied validation_status.json to output")
 
     logger.info("Done! Static data generated.")
 

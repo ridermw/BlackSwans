@@ -11,6 +11,7 @@ import numpy as np
 
 from blackswans.data.loaders import load_price_csv
 from blackswans.data.transforms import compute_daily_returns
+from blackswans.data.tickers import TICKER_REGISTRY, get_all_csvs
 from blackswans.sanitize import sanitize_ticker
 from blackswans.analysis.outliers import calculate_outlier_stats
 from blackswans.analysis.scenarios import scenario_returns, annualised_return
@@ -92,38 +93,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Ticker mapping: code -> (yahoo_symbol, csv_filename)
-TICKER_MAP = {
-    "sp500": ("^GSPC", "_GSPC_1928-09-04_to_2025-01-31.csv"),
-    "nikkei": ("^N225", "_N225_1970-01-05_to_2025-01-31.csv"),
-    "ftse": ("^FTSE", "_FTSE_1984-01-03_to_2025-01-31.csv"),
-    "dax": ("^GDAXI", "_GDAXI_1987-12-30_to_2025-01-31.csv"),
-    "cac": ("^FCHI", "_FCHI_1990-03-01_to_2025-01-31.csv"),
-    "asx": ("^AXJO", "_AXJO_1992-11-23_to_2025-01-31.csv"),
-    "tsx": ("^GSPTSE", "_GSPTSE_1979-06-29_to_2025-01-31.csv"),
-    "hsi": ("^HSI", "_HSI_1986-12-31_to_2025-01-28.csv"),
-    "efa": ("EFA", "EFA_2001-08-27_to_2025-01-31.csv"),
-    "eem": ("EEM", "EEM_2003-04-14_to_2025-01-31.csv"),
-    "reit": ("VNQ", "VNQ_2004-09-29_to_2025-01-31.csv"),
-    "bonds": ("AGG", "AGG_2003-09-29_to_2025-01-31.csv"),
-}
-
 DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 def get_ticker_info(ticker_code: str) -> TickerInfo:
     """Get ticker information from the mapping."""
-    if ticker_code not in TICKER_MAP:
+    all_csvs = get_all_csvs(DATA_DIR)
+    if ticker_code not in TICKER_REGISTRY:
         raise HTTPException(
             status_code=404,
-            detail=f"Ticker '{ticker_code}' not found. Available: {list(TICKER_MAP.keys())}",
+            detail=f"Ticker '{ticker_code}' not found. Available: {list(TICKER_REGISTRY.keys())}",
+        )
+    if ticker_code not in all_csvs:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Data file not found for ticker '{ticker_code}'",
         )
 
-    symbol, filename = TICKER_MAP[ticker_code]
-    filepath = (DATA_DIR / filename).resolve()
+    symbol, filepath, start_date, end_date = all_csvs[ticker_code]
+    filepath = filepath.resolve()
 
     # Validate the resolved path stays within the data directory
-    if not str(filepath).startswith(str(DATA_DIR.resolve())):
+    try:
+        filepath.relative_to(DATA_DIR.resolve())
+    except ValueError:
         raise HTTPException(
             status_code=400,
             detail="Invalid data file path",
@@ -134,11 +127,6 @@ def get_ticker_info(ticker_code: str) -> TickerInfo:
             status_code=404,
             detail=f"Data file not found for ticker '{ticker_code}'",
         )
-
-    # Parse dates from filename
-    parts = filename.replace(".csv", "").split("_")
-    start_date = parts[-3]
-    end_date = parts[-1]
 
     return TickerInfo(
         ticker_code=ticker_code,
@@ -159,7 +147,7 @@ async def health_check():
 async def list_tickers():
     """List all available tickers with their data files."""
     tickers = []
-    for code in TICKER_MAP.keys():
+    for code in TICKER_REGISTRY.keys():
         try:
             info = get_ticker_info(code)
             tickers.append(info)

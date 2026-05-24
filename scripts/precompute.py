@@ -19,34 +19,25 @@ import pandas as pd
 
 from blackswans.data.loaders import load_price_csv
 from blackswans.data.transforms import compute_daily_returns
+from blackswans.data.tickers import TICKER_REGISTRY, get_all_csvs
 from blackswans.analysis.outliers import calculate_outlier_stats
 from blackswans.analysis.scenarios import scenario_returns, annualised_return
 from blackswans.analysis.regimes import moving_average_regime, regime_performance
+from blackswans.analysis.periods import (
+    PERIOD_LABELS,
+    multi_index_summary,
+    period_cagr_matrix,
+    period_claim_summary,
+)
 from blackswans.validate_claims import run_full_validation
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Same mapping as api/main.py
-TICKER_MAP = {
-    "sp500": ("^GSPC", "_GSPC_1928-09-04_to_2025-01-31.csv"),
-    "nikkei": ("^N225", "_N225_1970-01-05_to_2025-01-31.csv"),
-    "ftse": ("^FTSE", "_FTSE_1984-01-03_to_2025-01-31.csv"),
-    "dax": ("^GDAXI", "_GDAXI_1987-12-30_to_2025-01-31.csv"),
-    "cac": ("^FCHI", "_FCHI_1990-03-01_to_2025-01-31.csv"),
-    "asx": ("^AXJO", "_AXJO_1992-11-23_to_2025-01-31.csv"),
-    "tsx": ("^GSPTSE", "_GSPTSE_1979-06-29_to_2025-01-31.csv"),
-    "hsi": ("^HSI", "_HSI_1986-12-31_to_2025-01-28.csv"),
-    "efa": ("EFA", "EFA_2001-08-27_to_2025-01-31.csv"),
-    "eem": ("EEM", "EEM_2003-04-14_to_2025-01-31.csv"),
-    "reit": ("VNQ", "VNQ_2004-09-29_to_2025-01-31.csv"),
-    "bonds": ("AGG", "AGG_2003-09-29_to_2025-01-31.csv"),
-}
-
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 OUTPUT_DIR = ROOT / "frontend" / "public" / "data"
-
+SPLIT_DATE = "2011-01-01"
 
 class NumpyEncoder(json.JSONEncoder):
     """Handle numpy types and NaN/Infinity in JSON serialisation."""
@@ -79,6 +70,18 @@ def _parse_dates_from_filename(filename: str):
     """Extract start and end dates from a data filename."""
     parts = filename.replace(".csv", "").split("_")
     return parts[-3], parts[-1]
+
+
+def _required_ticker_map():
+    """Return all expected tickers or fail before generating partial artifacts."""
+    all_csvs = get_all_csvs(DATA_DIR)
+    missing = sorted(set(TICKER_REGISTRY) - set(all_csvs))
+    if missing:
+        raise RuntimeError(f"Missing CSV data for expected tickers: {', '.join(missing)}")
+    return {
+        code: (sym, csv_path.name)
+        for code, (sym, csv_path, _start, _end) in all_csvs.items()
+    }
 
 
 def generate_analysis(ticker_code, prices_df, prices, returns, start, end):
@@ -256,17 +259,53 @@ def generate_chart_data(ticker_code, prices_df, prices, returns, start, end):
     }
 
 
+def generate_period_comparison(ticker_code, prices, returns):
+    """Generate period-comparison.json matching PeriodComparisonResponse."""
+    raw = period_claim_summary(prices, returns, SPLIT_DATE)
+    periods = []
+    for key in ["pre", "post", "full"]:
+        data = raw[key]
+        period = {
+            "period": key,
+            "period_label": PERIOD_LABELS[key],
+            "n_trading_days": data["n_trading_days"],
+            "start_date": data["start_date"],
+            "end_date": data["end_date"],
+        }
+        for claim in ["fat_tails", "outsized_influence", "clustering", "trend_following"]:
+            claim_data = dict(data[claim])
+            verdict = claim_data.pop("verdict")
+            period[claim] = {"verdict": verdict, "metrics": claim_data}
+        periods.append(period)
+    return {
+        "ticker": ticker_code,
+        "split_date": SPLIT_DATE,
+        "periods": periods,
+    }
+
+
+def generate_cagr_matrix(ticker_code, returns):
+    """Generate cagr-matrix.json matching CagrMatrixResponse."""
+    df = period_cagr_matrix(returns, SPLIT_DATE, n_days=10)
+    return {
+        "ticker": ticker_code,
+        "split_date": SPLIT_DATE,
+        "n_days": 10,
+        "rows": df.to_dict(orient="records"),
+    }
+
+
 def main():
     """Generate all static JSON files."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+    ticker_map = _required_ticker_map()
     tickers_list = []
 
-    for ticker_code, (symbol, filename) in TICKER_MAP.items():
+    for ticker_code, (symbol, filename) in ticker_map.items():
         csv_path = DATA_DIR / filename
         if not csv_path.exists():
-            logger.warning(f"Skipping {ticker_code}: {csv_path} not found")
-            continue
+            raise FileNotFoundError(f"Missing CSV for {ticker_code}: {csv_path}")
 
         start, end = _parse_dates_from_filename(filename)
         logger.info(f"Processing {ticker_code} ({symbol}): {start} to {end}")
@@ -274,19 +313,16 @@ def main():
         try:
             prices_df = load_price_csv(csv_path, start, end)
         except Exception as exc:
-            logger.warning(f"Skipping {ticker_code}: failed to load CSV: {exc}")
-            continue
+            raise RuntimeError(f"Failed to load CSV for {ticker_code} ({csv_path}): {exc}") from exc
 
         if prices_df.empty:
-            logger.warning(f"Skipping {ticker_code}: no price data in range")
-            continue
+            raise ValueError(f"No price data in range for {ticker_code}: {csv_path}")
 
         prices = prices_df["Close"]
         returns = compute_daily_returns(prices)
 
         if len(returns.dropna()) < 50:
-            logger.warning(f"Skipping {ticker_code}: too few returns ({len(returns.dropna())})")
-            continue
+            raise ValueError(f"Too few returns for {ticker_code}: {len(returns.dropna())}")
 
         tickers_list.append({
             "ticker_code": ticker_code,
@@ -316,11 +352,40 @@ def main():
         with open(ticker_dir / "chart-data.json", "w") as f:
             json.dump(chart_data, f, cls=NumpyEncoder)
 
+        logger.info(f"  Generating period-comparison.json for {ticker_code}")
+        period_comparison = generate_period_comparison(ticker_code, prices, returns)
+        with open(ticker_dir / "period-comparison.json", "w") as f:
+            json.dump(period_comparison, f, cls=NumpyEncoder)
+
+        logger.info(f"  Generating cagr-matrix.json for {ticker_code}")
+        cagr_matrix = generate_cagr_matrix(ticker_code, returns)
+        with open(ticker_dir / "cagr-matrix.json", "w") as f:
+            json.dump(cagr_matrix, f, cls=NumpyEncoder)
+
     # tickers.json
     with open(OUTPUT_DIR / "tickers.json", "w") as f:
         json.dump({"tickers": tickers_list}, f, cls=NumpyEncoder)
 
+    logger.info("Generating multi-index.json")
+    multi_index = {
+        "split_date": SPLIT_DATE,
+        "indices": multi_index_summary(str(DATA_DIR), split_date=SPLIT_DATE),
+    }
+    with open(OUTPUT_DIR / "multi-index.json", "w") as f:
+        json.dump(multi_index, f, cls=NumpyEncoder)
+
+    # Copy validation_status.json if it exists (generated by refresh_and_validate.py)
+    status_src = DATA_DIR / "validation_status.json"
+    if status_src.exists():
+        import shutil
+        shutil.copy2(status_src, OUTPUT_DIR / "validation_status.json")
+        logger.info("  Copied validation_status.json to output")
+
     logger.info(f"Done. Generated data for {len(tickers_list)} tickers in {OUTPUT_DIR}")
+    if len(tickers_list) != len(TICKER_REGISTRY):
+        raise RuntimeError(
+            f"Generated {len(tickers_list)} tickers, expected {len(TICKER_REGISTRY)}"
+        )
 
 
 if __name__ == "__main__":

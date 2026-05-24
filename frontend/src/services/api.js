@@ -33,6 +33,20 @@ async function fetchWithFallback(primaryUrl, fallbackUrl, label) {
 // ---------------------------------------------------------------------------
 
 /**
+ * Fetch validation status (last-run timestamp and claim verdicts).
+ * Returns { last_run, last_data_refresh, indices } or null if not available.
+ */
+export async function fetchValidationStatus() {
+  try {
+    const response = await fetch(`${BASE}/data/validation_status.json`);
+    if (!response.ok) return null;
+    return response.json();
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Fetch list of available tickers.
  * Returns array of { ticker_code, ticker_symbol, start_date, end_date }.
  */

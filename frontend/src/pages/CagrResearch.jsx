@@ -73,7 +73,7 @@ const CagrResearch = () => {
   }, [selectedTicker, splitDate, nDays]);
 
   /* ── Derived data ────────────────────────────────────────── */
-  const rows = data?.rows ?? [];
+  const rows = useMemo(() => data?.rows ?? [], [data]);
 
   const periodLabels = useMemo(
     () => rows.map((r) => r.period_label),

@@ -66,7 +66,7 @@ function App() {
               Based on <em>"Where the Black Swans Hide &amp; The 10 Best Days Myth"</em> by Mebane Faber (2011)
             </p>
             <p className="footer-stats">
-              Statistical validation using S&amp;P 500 data (1928–2025) • 12 Global Indices
+              Statistical validation using S&amp;P 500 data (1928–2026) • 12 Global Indices
             </p>
             <p className="footer-disclaimer">
               This is a research tool, not financial advice.

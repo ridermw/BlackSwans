@@ -49,19 +49,19 @@ pip install -e ".[dev]"
 
 ```bash
 # Using the package CLI
-blackswans --ticker ^GSPC --start 1928-09-04 --end 2025-01-31 \
-  --csv data/_GSPC_1928-09-04_to_2025-01-31.csv --output-dir output/sp500
+blackswans --ticker ^GSPC --start 1928-09-04 --end 2026-05-22 \
+  --csv data/_GSPC_1928-09-04_to_2026-05-22.csv --output-dir output/sp500
 
 # Or using the legacy script
-python src/validate_outliers.py --ticker ^GSPC --start 1928-09-04 --end 2025-01-31
+python src/validate_outliers.py --ticker ^GSPC --start 1928-09-04 --end 2026-05-22
 ```
 
 ### Run the full validation (all 4 claims)
 
 ```bash
 python -m blackswans.validate_claims \
-  --csv data/_GSPC_1928-09-04_to_2025-01-31.csv \
-  --ticker ^GSPC --start 1928-09-04 --end 2025-01-31 \
+  --csv data/_GSPC_1928-09-04_to_2026-05-22.csv \
+  --ticker ^GSPC --start 1928-09-04 --end 2026-05-22 \
   --output-dir output/validation
 ```
 
@@ -89,6 +89,17 @@ Generate pre-computed JSON and build the frontend for GitHub Pages or any static
 ```bash
 python scripts/generate_static_data.py
 cd frontend && npm run build
+```
+
+## Living Repo — Data Refresh
+
+This repo includes a guarded refresh script for keeping the research dataset current. It names CSV files with the latest actual trading date returned by Yahoo Finance, preserves prior data on failed refreshes, and writes timestamped validation status artifacts.
+
+```bash
+# Run locally
+python scripts/refresh_and_validate.py                  # data refresh only
+python scripts/refresh_and_validate.py --validate       # data + full validation
+python scripts/refresh_and_validate.py --dry-run        # preview only
 ```
 
 ## Project Structure
@@ -123,7 +134,7 @@ BlackSwans/
 ├── scripts/
 │   └── generate_static_data.py  # Static JSON generation for GitHub Pages
 ├── tests/                       # 197 tests (pytest, 88% coverage)
-├── data/                        # 12 index CSV files (1928-2025)
+├── data/                        # 12 index CSV files (through 2026-05-22)
 ├── output/                      # Analysis results
 ├── docs/
 │   ├── audit_report.md          # M0 code & methodology audit
@@ -138,18 +149,18 @@ BlackSwans/
 
 | Index | Ticker | Period | File |
 |-------|--------|--------|------|
-| S&P 500 | ^GSPC | 1928-2025 | `_GSPC_1928-09-04_to_2025-01-31.csv` |
-| Nikkei 225 | ^N225 | 1970-2025 | `_N225_1970-01-05_to_2025-01-31.csv` |
-| FTSE 100 | ^FTSE | 1984-2025 | `_FTSE_1984-01-03_to_2025-01-31.csv` |
-| DAX | ^GDAXI | 1987-2025 | `_GDAXI_1987-12-30_to_2025-01-31.csv` |
-| CAC 40 | ^FCHI | 1990-2025 | `_FCHI_1990-03-01_to_2025-01-31.csv` |
-| ASX 200 | ^AXJO | 1992-2025 | `_AXJO_1992-11-23_to_2025-01-31.csv` |
-| TSX | ^GSPTSE | 1979-2025 | `_GSPTSE_1979-06-29_to_2025-01-31.csv` |
-| Hang Seng | ^HSI | 1986-2025 | `_HSI_1986-12-31_to_2025-01-28.csv` |
-| MSCI EAFE | EFA | 2001-2025 | `EFA_2001-08-27_to_2025-01-31.csv` |
-| MSCI EM | EEM | 2003-2025 | `EEM_2003-04-14_to_2025-01-31.csv` |
-| REITs | VNQ | 2004-2025 | `VNQ_2004-09-29_to_2025-01-31.csv` |
-| US Bonds | AGG | 2003-2025 | `AGG_2003-09-29_to_2025-01-31.csv` |
+| S&P 500 | ^GSPC | 1928-2026 | `_GSPC_1928-09-04_to_2026-05-22.csv` |
+| Nikkei 225 | ^N225 | 1970-2026 | `_N225_1970-01-05_to_2026-05-22.csv` |
+| FTSE 100 | ^FTSE | 1984-2026 | `_FTSE_1984-01-03_to_2026-05-22.csv` |
+| DAX | ^GDAXI | 1987-2026 | `_GDAXI_1987-12-30_to_2026-05-22.csv` |
+| CAC 40 | ^FCHI | 1990-2026 | `_FCHI_1990-03-01_to_2026-05-22.csv` |
+| ASX 200 | ^AXJO | 1992-2026 | `_AXJO_1992-11-23_to_2026-05-22.csv` |
+| TSX | ^GSPTSE | 1979-2026 | `_GSPTSE_1979-06-29_to_2026-05-22.csv` |
+| Hang Seng | ^HSI | 1986-2026 | `_HSI_1986-12-31_to_2026-05-22.csv` |
+| MSCI EAFE | EFA | 2001-2026 | `EFA_2001-08-27_to_2026-05-22.csv` |
+| MSCI EM | EEM | 2003-2026 | `EEM_2003-04-14_to_2026-05-22.csv` |
+| REITs | VNQ | 2004-2026 | `VNQ_2004-09-29_to_2026-05-22.csv` |
+| US Bonds | AGG | 2003-2026 | `AGG_2003-09-29_to_2026-05-22.csv` |
 
 Original paper: [SSRN 1908469](https://ssrn.com/abstract=1908469)
 

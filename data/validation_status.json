@@ -1,0 +1,199 @@
+{
+  "overall_status": "success",
+  "last_data_refresh": "2026-05-24T17:28:04.653394+00:00",
+  "last_validation_run": "2026-05-24T17:28:04.653394+00:00",
+  "indices": {
+    "sp500": {
+      "name": "S&P 500",
+      "symbol": "^GSPC",
+      "status": "success",
+      "data_file": "_GSPC_1928-09-04_to_2026-05-22.csv",
+      "data_start": "1928-09-04",
+      "data_end": "2026-05-22",
+      "rows": 24545,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 24544
+    },
+    "nikkei": {
+      "name": "Nikkei 225",
+      "symbol": "^N225",
+      "status": "success",
+      "data_file": "_N225_1970-01-05_to_2026-05-22.csv",
+      "data_start": "1970-01-05",
+      "data_end": "2026-05-22",
+      "rows": 13863,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 13862
+    },
+    "ftse": {
+      "name": "FTSE 100",
+      "symbol": "^FTSE",
+      "status": "success",
+      "data_file": "_FTSE_1984-01-03_to_2026-05-22.csv",
+      "data_start": "1984-01-03",
+      "data_end": "2026-05-22",
+      "rows": 10707,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 10706
+    },
+    "dax": {
+      "name": "DAX",
+      "symbol": "^GDAXI",
+      "status": "success",
+      "data_file": "_GDAXI_1987-12-30_to_2026-05-22.csv",
+      "data_start": "1987-12-30",
+      "data_end": "2026-05-22",
+      "rows": 9707,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 9706
+    },
+    "cac": {
+      "name": "CAC 40",
+      "symbol": "^FCHI",
+      "status": "success",
+      "data_file": "_FCHI_1990-03-01_to_2026-05-22.csv",
+      "data_start": "1990-03-01",
+      "data_end": "2026-05-22",
+      "rows": 9199,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 9198
+    },
+    "asx": {
+      "name": "ASX 200",
+      "symbol": "^AXJO",
+      "status": "success",
+      "data_file": "_AXJO_1992-11-23_to_2026-05-22.csv",
+      "data_start": "1992-11-23",
+      "data_end": "2026-05-22",
+      "rows": 8467,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 8466
+    },
+    "tsx": {
+      "name": "TSX Composite",
+      "symbol": "^GSPTSE",
+      "status": "success",
+      "data_file": "_GSPTSE_1979-06-29_to_2026-05-22.csv",
+      "data_start": "1979-06-29",
+      "data_end": "2026-05-22",
+      "rows": 11775,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 11774
+    },
+    "hsi": {
+      "name": "Hang Seng",
+      "symbol": "^HSI",
+      "status": "success",
+      "data_file": "_HSI_1986-12-31_to_2026-05-22.csv",
+      "data_start": "1986-12-31",
+      "data_end": "2026-05-22",
+      "rows": 9720,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 9719
+    },
+    "efa": {
+      "name": "MSCI EAFE",
+      "symbol": "EFA",
+      "status": "success",
+      "data_file": "EFA_2001-08-27_to_2026-05-22.csv",
+      "data_start": "2001-08-27",
+      "data_end": "2026-05-22",
+      "rows": 6221,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 6220
+    },
+    "eem": {
+      "name": "MSCI EM",
+      "symbol": "EEM",
+      "status": "success",
+      "data_file": "EEM_2003-04-14_to_2026-05-22.csv",
+      "data_start": "2003-04-14",
+      "data_end": "2026-05-22",
+      "rows": 5815,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 5814
+    },
+    "reit": {
+      "name": "REITs (VNQ)",
+      "symbol": "VNQ",
+      "status": "success",
+      "data_file": "VNQ_2004-09-29_to_2026-05-22.csv",
+      "data_start": "2004-09-29",
+      "data_end": "2026-05-22",
+      "rows": 5447,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 5446
+    },
+    "bonds": {
+      "name": "US Bonds (AGG)",
+      "symbol": "AGG",
+      "status": "success",
+      "data_file": "AGG_2003-09-29_to_2026-05-22.csv",
+      "data_start": "2003-09-29",
+      "data_end": "2026-05-22",
+      "rows": 5699,
+      "claims": {
+        "1_fat_tails": "CONFIRMED",
+        "2_outsized_influence": "CONFIRMED",
+        "3_clustering": "CONFIRMED",
+        "4_trend_following": "CONFIRMED"
+      },
+      "n_trading_days": 5698
+    }
+  }
+}
